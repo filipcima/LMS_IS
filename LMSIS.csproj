@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{41E58416-C65D-42EE-8296-E245ADAD597E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LMSIS</RootNamespace>
+    <AssemblyName>LMSIS</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Database\DaoSqls\HistorieMaterialuTable.cs" />
+    <Compile Include="Database\DaoSqls\KurzFrontaTable.cs" />
+    <Compile Include="Database\DaoSqls\KurzTable.cs" />
+    <Compile Include="Database\DaoSqls\OborTable.cs" />
+    <Compile Include="Database\DaoSqls\PisemkaTable.cs" />
+    <Compile Include="Database\DaoSqls\StudentTable.cs" />
+    <Compile Include="Database\DaoSqls\TypStudiaTable.cs" />
+    <Compile Include="Database\DaoSqls\VyucujiciTable.cs" />
+    <Compile Include="Database\DaoSqls\VyukovyMaterialTable.cs" />
+    <Compile Include="Database\DaoSqls\ZapsanyKurzTable.cs" />
+    <Compile Include="Database\Models\HistorieMaterialu.cs" />
+    <Compile Include="Database\Models\Kurz.cs" />
+    <Compile Include="Database\Models\KurzFronta.cs" />
+    <Compile Include="Database\Models\Obor.cs" />
+    <Compile Include="Database\Models\Pisemka.cs" />
+    <Compile Include="Database\Models\Student.cs" />
+    <Compile Include="Database\Models\TypStudia.cs" />
+    <Compile Include="Database\Models\Vyucujici.cs" />
+    <Compile Include="Database\Models\VyukovyMaterial.cs" />
+    <Compile Include="Database\Models\ZapsanyKurz.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+</Project>
