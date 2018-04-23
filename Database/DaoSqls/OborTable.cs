@@ -2,6 +2,6 @@
 {
     public class OborTable
     {
-        
+        private string s = "s";
     }
 }
