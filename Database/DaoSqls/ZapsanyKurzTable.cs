@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.SqlClient;
 using LMSIS.Database.Models;
 
@@ -9,7 +10,7 @@ namespace LMSIS.Database.DaoSqls
     {
         private static string TABLE_NAME = "ZapsanyKurz";
         
-        private static string SQL_INSERT = "INSERT INTO ZapsanyKurz VALUES(@DatumZapisu, @DatumUkonceni, @Splneno, @IdStudent, @IdKurz)";
+        private static string SQL_INSERT = "spZapisKurz";
         
         private static string SQL_UPDATE = "UPDATE ZapsanyKurz SET DatumZapisu=@DatumZapisu, DatumUkonceni=" +
                                            "@DatumUkonceni, Splneno=@Splneno, Student_IdStudent=@IdStudent, " +
@@ -43,7 +44,10 @@ namespace LMSIS.Database.DaoSqls
             }
 
             SqlCommand command = db.CreateCommand(SQL_INSERT);
-            PrepareCommand(command, zk);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.AddWithValue("@IdKurz", zk.IdKurz);
+            command.Parameters.AddWithValue("@IdStudent", zk.IdStudent);
+            
             int ret = db.ExecuteNonQuery(command);
 
             if (pDb == null)
