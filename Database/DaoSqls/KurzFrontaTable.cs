@@ -9,19 +9,13 @@ namespace LMSIS.Database.DaoSqls
     public class KurzFrontaTable
     {
         private static string TABLE_NAME = "KurzFronta";
+        
         private static string SQL_INSERT = "INSERT INTO KurzFronta VALUES (@IdStudent, @IdKurz, @TStamp)";
 
-        //todo: decide to keep or not this update
-        //public static string SQL_UPDATE = "UPDATE KurzFronta SET IdKurz=@IdKurz, IdStudent=@IdStudent, TStamp=@TStamp " +
-        //                                  "WHERE IdKurzFronta=@IdKurzFronta";
         private static string SQL_DELETE_ID = "DELETE FROM KurzFronta WHERE IdKurzFronta=@IdKurzFronta";
 
-        private static string SQL_SELECT_ID = "SELECT kf.idkurzfronta, kf.tstamp, s.*, k.*  FROM KurzFronta kf " +
-                                             "JOIN student s ON kf.student_idstudent = s.idstudent JOIN kurz k ON " +
-                                             "kf.kurz_idkurz = k.idkurz WHERE kf.IdKurzFronta = @IdKurzFronta";
-        private static string SQL_MATERIALS_BY_COURSE =
-            "SELECT s.* FROM kurzfronta JOIN student s ON kurzfronta.student_idstudent " +
-            "= s.idstudent WHERE kurz_idkurz=@IdKurz";
+        private static string SQL_MATERIALS_BY_COURSE = "SELECT s.* FROM kurzfronta kf JOIN student s ON " +
+                                                        "kf.student_idstudent = s.idstudent WHERE kurz_idkurz=@IdKurz";
 
         public static int Insert(KurzFronta kf, Database pDb = null)
         {
@@ -47,20 +41,6 @@ namespace LMSIS.Database.DaoSqls
 
             return ret;
         }
-
-        /*
-        public static int Update(KurzFronta kf)
-        {
-            var db = new Database();
-            db.Connect();
-
-            SqlCommand command = db.CreateCommand(SQL_UPDATE);
-            PrepareCommand(command, kf);
-            int ret = db.ExecuteNonQuery(command);
-            db.Close();
-            return ret;
-        }
-        */
 
         public static int Delete(int idKurzFronta)
         {
@@ -97,12 +77,12 @@ namespace LMSIS.Database.DaoSqls
         private static void PrepareCommand(SqlCommand command, KurzFronta kf)
         {
             command.Parameters.AddWithValue("@IdKurzFronta", kf.IdKurzFronta);
-            command.Parameters.AddWithValue("@IdStudent", kf.Student.IdStudent);
-            command.Parameters.AddWithValue("@IdKurz", kf.Kurz.IdKurz);
+            command.Parameters.AddWithValue("@IdStudent", kf.IdStudent);
+            command.Parameters.AddWithValue("@IdKurz", kf.IdKurz);
             command.Parameters.AddWithValue("@TStamp", kf.Stamp);
         }
         
-        // todo: decide what to do with this function.
+        // todo: decide to keep or not this method
         private static Collection<KurzFronta> Read(SqlDataReader reader, bool complete)
         {
             Collection<KurzFronta> kurzFrontas = new Collection<KurzFronta>();
@@ -114,35 +94,12 @@ namespace LMSIS.Database.DaoSqls
                 int i = -1;
 
                 kf.IdKurzFronta = reader.GetInt32(++i);
-
-                kf.Student = new Student();
-                kf.Student.IdStudent = reader.GetInt32(++i);
-                kf.Student.DatumRegistrace = reader.GetDateTime(++i);
-                if (!reader.IsDBNull(++i))
-                {
-                    kf.Student.PosledniPrihlaseni = reader.GetDateTime(i);
-                }
-                kf.Student.Jmeno = reader.GetString(++i);
-                kf.Student.Prijmeni = reader.GetString(++i);
-                kf.Student.Login = reader.GetString(++i);
-                kf.Student.Heslo = reader.GetString(++i);
-                kf.Student.TypStudia = new TypStudia();
-                kf.Student.TypStudia.IdTypStudia = reader.GetInt32(++i);
-
-                kf.Kurz = new Kurz();
-                kf.Kurz.IdKurz = reader.GetInt32(++i);
-                kf.Kurz.Nazev = reader.GetString(++i);
-                if (!reader.IsDBNull(++i))
-                {
-                    kf.Kurz.Popis = reader.GetString(i);
-                }
-                kf.Kurz.Vytvoren = reader.GetDateTime(++i);
-                kf.Kurz.Ukoncen = reader.GetDateTime(++i);
-                kf.Kurz.Vyucujici = new Vyucujici();
-                kf.Kurz.Vyucujici.IdVyucujici = reader.GetInt32(++i);
-                kf.Kurz.Obor = new Obor();
-                kf.Kurz.Obor.IdObor = reader.GetInt32(++i);
-
+                kf.Stamp = reader.GetDateTime(++i);
+                kf.IdStudent = reader.GetInt32(++i);
+                kf.Student = StudentTable.SelectOne(kf.IdStudent);
+                kf.IdKurz = reader.GetInt32(++i);
+                kf.Kurz = KurzTable.SelectOne(kf.IdKurz);
+                
                 kurzFrontas.Add(kf);
             }
 

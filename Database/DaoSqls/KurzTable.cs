@@ -10,17 +10,25 @@ namespace LMSIS.Database.DaoSqls
     public class KurzTable
     {
         private static string TABLE_NAME = "Kurz";
+        
         private static string SQL_INSERT = "spVytvorKurz";
+        
         private static string SQL_UPDATE = "UPDATE Kurz SET Nazev=@Nazev, Popis=@Popis, Vytvoren=@Vytvoren," +
                                           "Ukoncen=@Ukoncen, Vyucujici_IdVyucujici=@IdVyucujici, Obor_IdObor=@IdObor," +
                                           "Kapacita=@Kapacita WHERE IdKurz=@IdKurz";
+        
         private static string SQL_DELETE_ID = "DELETE FROM Kurz WHERE IdKurz=@IdKurz";
-        private static string SQL_SELECT_ID = "SELECT k.IdKurz, k.Nazev, k.Popis, k.Vytvoren, k.Ukoncen, k.Kapacita, v.IdVyucujici, " +
-                                             "v.Titul, v.Jmeno, v.Prijmeni, v.\"Login\", v.Heslo, v.DatumNarozeni, " +
-                                             "o.IdObor, o.Nazev, o.Popis  FROM Kurz k JOIN Obor o ON k.Obor_IdObor=o.IdObor " +
-                                             "JOIN Vyucujici v ON v.IdVyucujici=k.Vyucujici_IdVyucujici WHERE IdKurz=@IdKurz";
+        
+        private static string SQL_SELECT_ID = "SELECT k.IdKurz, k.Nazev, k.Popis, k.Vytvoren, k.Ukoncen, k.Kapacita, " +
+                                              "k.Vyucujici_IdVyucujici, k.Obor_IdObor FROM kurz k WHERE IdKurz=@IdKurz";
+        
         private static string SQL_STUDENTS_COUNT_BY_COURSE = "SELECT COUNT(*) FROM ZapsanyKurz WHERE Kurz_IdKurz=@IdKurz";
         
+        private static string SQL_COURSES_NOT_FULL = "SELECT k.IdKurz, k.Nazev, k.Popis, k.Vytvoren, k.Ukoncen, " +
+                                                     "k.Kapacita, k.Vyucujici_IdVyucujici, k.Obor_IdObor FROM kurz k " +
+                                                     "WHERE (SELECT COUNT(*) FROM zapsanykurz " +
+                                                     "WHERE kurz_idkurz = k.idkurz) < k.kapacita";
+
         public static int Insert(Kurz kurz, Database pDb = null)
         {
             Database db;
@@ -101,6 +109,44 @@ namespace LMSIS.Database.DaoSqls
             return null;
         }
         
+        public static Collection<Kurz> SelectNotFullCourses()
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_COURSES_NOT_FULL))
+                {
+                    SqlDataReader reader = db.Select(command);
+
+                    Collection<Kurz> kurzy = Read(reader, true);
+
+                    return kurzy;
+                }
+            }
+        }
+        
+        public static int? GetStudentsCount(int idKurz)
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_STUDENTS_COUNT_BY_COURSE))
+                {
+                    command.Parameters.AddWithValue("@IdKurz", idKurz);
+
+                    SqlDataReader reader = db.Select(command);
+                    while (reader.Read())
+                    {
+                        return reader.GetInt32(0);
+                    }
+                }
+            }
+
+            return null;
+        }
+        
         private static void PrepareCommand(SqlCommand command, Kurz kurz)
         {
             command.Parameters.AddWithValue("@IdKurz", kurz.IdKurz);
@@ -109,8 +155,8 @@ namespace LMSIS.Database.DaoSqls
             command.Parameters.AddWithValue("@Vytvoren", kurz.Vytvoren);
             command.Parameters.AddWithValue("@Ukoncen", kurz.Ukoncen == null ? DBNull.Value : (object)kurz.Ukoncen);
             command.Parameters.AddWithValue("@Kapacita", kurz.Kapacita);
-            command.Parameters.AddWithValue("@IdObor", kurz.Obor.IdObor);
-            command.Parameters.AddWithValue("@IdVyucujici", kurz.Vyucujici.IdVyucujici);
+            command.Parameters.AddWithValue("@IdObor", kurz.IdObor);
+            command.Parameters.AddWithValue("@IdVyucujici", kurz.IdVyucujici);
         }
         
         private static Collection<Kurz> Read(SqlDataReader reader, bool complete)
@@ -129,54 +175,17 @@ namespace LMSIS.Database.DaoSqls
                 {
                     kurz.Ukoncen = DateTime.Parse(reader.GetString(i));
                 }
-
                 kurz.Kapacita = reader.GetByte(++i);
-                kurz.Vyucujici = new Vyucujici();
-                kurz.Vyucujici.IdVyucujici = reader.GetInt32(++i);
-                if (!reader.IsDBNull(++i))
-                {
-                    kurz.Vyucujici.Titul = reader.GetString(i);
-                }
+                kurz.IdVyucujici = reader.GetInt32(++i);
+                kurz.Vyucujici = VyucujiciTable.SelectOne(kurz.IdVyucujici);
                 
-                kurz.Vyucujici.Jmeno = reader.GetString(++i);
-                kurz.Vyucujici.Prijmeni = reader.GetString(++i);
-                kurz.Vyucujici.Login = reader.GetString(++i);
-                kurz.Vyucujici.Heslo = reader.GetString(++i);
-                kurz.Vyucujici.DatumNarozeni = DateTime.Parse(reader.GetString(++i));
-                kurz.Obor = new Obor();
-                kurz.Obor.IdObor = reader.GetInt32(++i);
-                kurz.Obor.Nazev = reader.GetString(++i);
-                if (!reader.IsDBNull(++i))
-                {
-                    kurz.Obor.Popis = reader.GetString(i);
-                }
-
+                kurz.IdObor = reader.GetInt32(++i);
+                kurz.Obor = OborTable.SelectOne(kurz.IdObor);
+                
                 kurzy.Add(kurz);
             }
             
             return kurzy;
         }
-
-        public static int GetStudentsCount(int idKurz)
-        {
-            using (Database db = new Database())
-            {
-                db.Connect();
-
-                using (SqlCommand command = db.CreateCommand(SQL_STUDENTS_COUNT_BY_COURSE))
-                {
-                    command.Parameters.AddWithValue("@IdKurz", idKurz);
-
-                    SqlDataReader reader = db.Select(command);
-                    while (reader.Read())
-                    {
-                        return reader.GetInt32(0);
-                    }
-                }
-            }
-
-            return 0;
-        }
-
     }
 }

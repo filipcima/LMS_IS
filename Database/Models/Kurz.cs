@@ -9,8 +9,10 @@ namespace LMSIS.Database.Models
         public string Popis { get; set; }
         public int Kapacita { get; set; }
         public DateTime Vytvoren { get; set; }
-        public DateTime? Ukoncen{ get; set; }
+        public DateTime? Ukoncen { get; set; }
+        public int IdVyucujici { get; set; }
         public Vyucujici Vyucujici { get; set; }
+        public int IdObor { get; set; }
         public Obor Obor { get; set; }
     }
 }

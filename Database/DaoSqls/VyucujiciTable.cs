@@ -12,17 +12,16 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_INSERT = "INSERT INTO Vyucujici VALUES (@Titul, @Jmeno, @Prijmeni, @Login," +
                                           "@Heslo, @DatumNarozeni)";
 
-        private static string SQL_UPDATE = "UPDATE Vyucujici SET IdVyucujici=@IdVyucujici, Titul=@Titul, Jmeno=@Jmeno, " +
-                                          "Prijmeni=@Prijmeni, DatumRegistrace=@DatumRegistrace, Login=@Login, " +
-                                          "Heslo=@Heslo, PosledniPrihlaseni=@PosledniPrihlaseni WHERE IdVyucujici=@IdVyucujici";
+        private static string SQL_UPDATE = "UPDATE Vyucujici SET Titul=@Titul, Jmeno=@Jmeno, Prijmeni=@Prijmeni, " +
+                                           "Login=@Login, Heslo=@Heslo, DatumNarozeni=@DatumNarozeni " +
+                                           "WHERE IdVyucujici=@IdVyucujici";
 
         private static string SQL_DELETE_ID = "DELETE FROM Vyucujici WHERE Vyucujici=@IdVyucujici";
 
         private static string SQL_SELECT_ID = "SELECT IdVyucujici, Titul, Jmeno, Prijmeni, \"Login\", " +
-                                             "Heslo, DatumNarozeni FROM Student JOIN TypStudia ON TypStudia.IdTypStudia=" +
-                                             "Student.TypStudia_IdTypStudia WHERE IdStudent=@IdStudent";
+                                             "Heslo, DatumNarozeni FROM Vyucujici WHERE IdVyucujici=@IdVyucujici";
 
-        private static string SQL_SELECT_BY_COURSE_NAME = "SELECT * FROM vyucujici v JOIN kurz k ON v.idvyucujici = " +
+        private static string SQL_SELECT_BY_COURSE_NAME = "SELECT v.* FROM vyucujici v JOIN kurz k ON v.idvyucujici = " +
                                                          "k.vyucujici_idvyucujici WHERE k.nazev = @Nazev";
         
         

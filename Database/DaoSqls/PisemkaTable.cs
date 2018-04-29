@@ -12,30 +12,26 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_INSERT = "spVytvorPisemku";
 
         private static string SQL_UPDATE = "UPDATE Pisemka SET DatumTestu=@DatumTestu, " +
-                                          "Znamka=@Znamka, ZapsanyKurz_IdRegistrace=@IdZapsanyKurz " +
-                                          "WHERE IdPisemka=@IdPisemka";
+                                           "Znamka=@Znamka, ZapsanyKurz_IdRegistrace=@IdZapsanyKurz " +
+                                           "WHERE IdPisemka=@IdPisemka";
 
         private static string SQL_DELETE_ID = "DELETE FROM Pisemka WHERE IdPisemka=@IdPisemka";
 
-        private static string SQL_SELECT_ID = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace, " +
-                                             "z.DatumZapisu, z.DatumUkonceni, z.Splneno, z.Student_IdStudent, " +
-                                             "z.Kurz_IdKurz FROM Pisemka p JOIN ZapsanyKurz z ON " +
-                                             "p.ZapsanyKurz_IdRegistrace=z.IdRegistrace WHERE IdPisemka=@IdPisemka";
+        private static string SQL_SELECT_ID = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace " +
+                                              "FROM Pisemka p WHERE IdPisemka=@IdPisemka";
 
         private static string SQL_AVG_MARK = "SELECT avg(p.znamka) FROM pisemka p JOIN zapsanykurz z ON " +
-                                            "p.zapsanykurz_idregistrace = z.idregistrace WHERE z.kurz_idkurz=@IdKurz";
+                                             "p.zapsanykurz_idregistrace = z.idregistrace WHERE z.kurz_idkurz=@IdKurz";
 
-        private static string SQL_UPCOMING_TESTS = "SELECT p.idpisemka, p.datumtestu, p.znamka, z.idregistrace, " +
-                                                  "z.datumzapisu, z.datumukonceni, z.splneno, z.student_idstudent, " +
-                                                  "z.kurz_idkurz FROM pisemka p JOIN zapsanykurz z ON " +
-                                                  "p.zapsanykurz_idregistrace = z.idregistrace " +
-                                                  "WHERE z.student_idstudent=@IdStudent AND getdate() < p.datumtestu";
+        private static string SQL_UPCOMING_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace " +
+                                                   "FROM pisemka p JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace " +
+                                                   "= zk.IdRegistrace WHERE zk.student_idstudent=@IdStudent " +
+                                                   "AND getdate() < p.datumtestu";
 
-        private static string SQL_PAST_TESTS = "SELECT p.idpisemka, p.datumtestu, p.znamka, z.idregistrace, " +
-                                              "z.datumzapisu, z.datumukonceni, z.splneno, z.student_idstudent, " +
-                                              "z.kurz_idkurz FROM pisemka p JOIN zapsanykurz z ON " +
-                                              "p.zapsanykurz_idregistrace = z.idregistrace " +
-                                              "WHERE z.student_idstudent=@IdStudent AND getdate() > p.datumtestu";
+        private static string SQL_PAST_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace " +
+                                               "FROM pisemka p JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace " +
+                                               "= zk.IdRegistrace WHERE zk.student_idstudent=@IdStudent " +
+                                               "AND getdate() > p.datumtestu";
 
         private static string SQL_TEST_CHECK = "spZkontrolujPisemky";
         
@@ -151,7 +147,7 @@ namespace LMSIS.Database.DaoSqls
             }
         }
         
-        public static double GetAvgMark(int idKurz)
+        public static double? GetAvgMark(int idKurz)
         {
             using (Database db = new Database())
             {
@@ -169,7 +165,7 @@ namespace LMSIS.Database.DaoSqls
                 }
             }
 
-            return 0;
+            return null;
         }
 
         public static int TestCheckDaily(Database pDb = null)
@@ -203,7 +199,7 @@ namespace LMSIS.Database.DaoSqls
             command.Parameters.AddWithValue("@IdPisemka", pisemka.IdPisemka);
             command.Parameters.AddWithValue("@DatumTestu", pisemka.DatumPisemky);
             command.Parameters.AddWithValue("@Znamka", pisemka.Znamka);
-            command.Parameters.AddWithValue("@IdZapsanyKurz", 3);
+            command.Parameters.AddWithValue("@IdZapsanyKurz", pisemka.IdZapsanyKurz);
         }
         
         private static Collection<Pisemka> Read(SqlDataReader reader, bool complete)
@@ -224,19 +220,10 @@ namespace LMSIS.Database.DaoSqls
                 {
                     pisemka.Znamka = reader.GetByte(i);
                 }
-                pisemka.ZapsanyKurz = new ZapsanyKurz();
-                pisemka.ZapsanyKurz.IdRegistrace = reader.GetInt32(++i);
-                pisemka.ZapsanyKurz.DatumZapisu = DateTime.Parse(reader.GetString(++i));
-                if (!reader.IsDBNull(++i))
-                {
-                    pisemka.ZapsanyKurz.DatumUkonceni = DateTime.Parse(reader.GetString(i));
-                }
-                if (!reader.IsDBNull(++i))
-                {
-                    pisemka.ZapsanyKurz.Splneno = Convert.ToBoolean(reader.GetBoolean(i));
-                }
-                pisemka.ZapsanyKurz.Student = new Student {IdStudent = reader.GetInt32(++i)};
-                pisemka.ZapsanyKurz.Kurz = new Kurz {IdKurz = reader.GetInt32(++i)};
+
+                pisemka.IdZapsanyKurz = reader.GetInt32(++i);
+                pisemka.ZapsanyKurz = ZapsanyKurzTable.SelectOne(pisemka.IdZapsanyKurz);
+                
 
                 pisemky.Add(pisemka);
             }

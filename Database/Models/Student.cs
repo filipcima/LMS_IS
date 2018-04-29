@@ -11,6 +11,7 @@ namespace LMSIS.Database.Models
         public string Prijmeni { get; set; }
         public string Login { get; set; }
         public string Heslo { get; set; }
+        public int IdTypStudia { get; set; }
         public TypStudia TypStudia { get; set; }
     }
 }

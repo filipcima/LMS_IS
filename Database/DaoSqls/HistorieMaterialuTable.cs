@@ -15,16 +15,13 @@ namespace LMSIS.Database.DaoSqls
         // no need to update this table
         
         private static string SQL_DELETE_ID = "DELETE FROM HistorieMaterialu WHERE IdHistorie=@IdHistorie";
-        private static string SQL_SELECT_ID = "SELECT IdHistorie, DatumZmeny, TypZmeny, VyukovyMaterial_Id, h.Nazev, " +
-                                             "h.Text, h.Vlozen, v.nazev, v.vlozen, v.vyucujici_idvyucujici, v.kurz_idkurz " +
-                                             "FROM historiematerialu h JOIN vyukovymaterial v ON h.vyukovymaterial_id = " +
-                                             "v.idvyukovymaterial WHERE IdHistorie=@IdHistorie ";
-        private static string SQL_SELECT_LIST_ID = "SELECT IdHistorie, DatumZmeny, TypZmeny, VyukovyMaterial_Id, h.Nazev, " +
-                                                  "h.Text, h.Vlozen, v.nazev, v.text, v.vlozen, v.vyucujici_idvyucujici, " +
-                                                  "v.kurz_idkurz FROM historiematerialu h JOIN vyukovymaterial v " +
-                                                  "ON h.vyukovymaterial_id = v.idvyukovymaterial " +
-                                                  "WHERE h.vyukovymaterial_id = @IdVyukovyMaterial";
         
+        private static string SQL_SELECT_ID = "SELECT IdHistorie, DatumZmeny, TypZmeny, VyukovyMaterial_Id, h.Nazev, " +
+                                             "h.Text, h.Vlozen FROM historiematerialu h WHERE IdHistorie=@IdHistorie ";
+        
+        private static string SQL_SELECT_LIST_ID = "SELECT IdHistorie, DatumZmeny, TypZmeny, VyukovyMaterial_Id, h.Nazev, " +
+                                                  "h.Text, h.Vlozen FROM historiematerialu h WHERE " +
+                                                   "h.vyukovymaterial_id = @IdVyukovyMaterial";
         
         public static int Delete(int idHistorie)
         {
@@ -32,7 +29,7 @@ namespace LMSIS.Database.DaoSqls
             db.Connect();
             SqlCommand command = db.CreateCommand(SQL_DELETE_ID);
 
-            command.Parameters.AddWithValue("@IdKurzFronta", idHistorie);
+            command.Parameters.AddWithValue("@IdHistorie", idHistorie);
             int ret = db.ExecuteNonQuery(command);
             db.Close();
             return ret;
@@ -63,7 +60,7 @@ namespace LMSIS.Database.DaoSqls
             command.Parameters.AddWithValue("@IdHistorie", hm.IdHistorie);
             command.Parameters.AddWithValue("@DatumZmeny", hm.DatumZmeny);
             command.Parameters.AddWithValue("@TypZmeny", hm.TypZmeny);
-            command.Parameters.AddWithValue("@IdVyukovyMaterial", hm.Material.IdVyukovyMaterial);
+            command.Parameters.AddWithValue("@IdVyukovyMaterial", hm.IdVyukovyMaterial);
             command.Parameters.AddWithValue("@Nazev", hm.Nazev);
             command.Parameters.AddWithValue("@Text", hm.Text);
             command.Parameters.AddWithValue("@Vlozen", hm.Vlozen);
@@ -81,19 +78,12 @@ namespace LMSIS.Database.DaoSqls
                 hm.IdHistorie = reader.GetInt32(++i);
                 hm.DatumZmeny = DateTime.Parse(reader.GetString(++i));
                 hm.TypZmeny = reader.GetString(++i);
-                hm.Material.IdVyukovyMaterial = reader.GetInt32(++i);
+                hm.IdVyukovyMaterial= reader.GetInt32(++i);
+                hm.Material = VyukovyMaterialTable.SelectOne(hm.IdVyukovyMaterial);
                 hm.Nazev = reader.GetString(++i);
                 hm.Text = reader.GetString(++i);
-                hm.Vlozen = reader.GetDateTime(++i);
-                hm.Material.Nazev = reader.GetString(++i);
-                hm.Material.Text = reader.GetString(++i);
-                hm.Material.Autor.IdVyucujici = reader.GetInt32(++i);
-                
-                
-                /*
-                IdHistorie, DatumZmeny, TypZmeny, VyukovyMaterial_Id, h.Nazev, " +
-                "h.Text, h.Vlozen, v.nazev, v.text, v.vlozen, v.vyucujici_idvyucujici, " +
-                    "v.kurz_idkurz*/ 
+                hm.Vlozen = DateTime.Parse(reader.GetString(++i));
+
                 historieMaterialuCollection.Add(hm);
             }
 
@@ -109,16 +99,10 @@ namespace LMSIS.Database.DaoSqls
                 Student student = new Student();
                 int i = -1;
 
-                
-                
                 students.Add(student);
             }
 
             return students;
         }
-        
-        
-        
-        
     }
 }

@@ -9,32 +9,31 @@ namespace LMSIS.Database.DaoSqls
     {
         private static string TABLE_NAME = "Student";
 
-        private static string SQL_INSERT = "INSERT INTO Student VALUES (@Jmeno, @Prijmeni, @DatumRegistrace," +
-                                          "@PosledniPrihlaseni, @Login, @Heslo, @TypStudia_IdTypStudia)";
+        private static string SQL_INSERT = "INSERT INTO Student VALUES (@DatumRegistrace, @PosledniPrihlaseni, " +
+                                          "@Jmeno, @Prijmeni, @Login, @Heslo, @TypStudia_IdTypStudia)";
 
-        private static string SQL_UPDATE = "UPDATE Student SET IdStudent=@IdStudent, Jmeno=@Jmeno, Prijmeni=@Prijmeni," +
+        private static string SQL_UPDATE = "UPDATE Student SET Jmeno=@Jmeno, Prijmeni=@Prijmeni," +
                                           "DatumRegistrace=@DatumRegistrace, PosledniPrihlaseni=@PosledniPrihlaseni," +
-                                          "Login=@Login, Heslo=@Heslo, TypStudia_IdStudia=@TypStudia_IdTypStudia WHERE " +
+                                          "Login=@Login, Heslo=@Heslo, TypStudia_IdTypStudia=@TypStudia_IdTypStudia WHERE " +
                                           "IdStudent=@IdStudent";
 
         private static string SQL_DELETE_ID = "DELETE FROM Student WHERE IdStudent=@IdStudent";
 
         private static string SQL_SELECT_ID = "SELECT IdStudent, Jmeno, Prijmeni, DatumRegistrace, PosledniPrihlaseni, " +
-                                             "\"Login\", Heslo, TypStudia_IdTypStudia, Nazev FROM Student JOIN " +
-                                             "TypStudia ON TypStudia.IdTypStudia=Student.TypStudia_IdTypStudia WHERE " +
-                                             "IdStudent=@IdStudent";
+                                             "\"Login\", Heslo, TypStudia_IdTypStudia FROM Student WHERE IdStudent=@IdStudent";
 
-        private static string SQL_SELECT_UNSUCESSFUL = "SELECT IdStudent, Jmeno, Prijmeni, DatumRegistrace, PosledniPrihlaseni, " +
-                                                      "\"Login\", Heslo, TypStudia_IdTypStudia, Nazev  FROM Student s " +
-                                                      "JOIN zapsanykurz z ON s.idstudent = z.student_idstudent " +
-                                                      "WHERE splneno = 0 AND year(datumukonceni) = year(GETDATE()) " +
-                                                      "GROUP BY s.login HAVING count(splneno) >= 2";
+        private static string SQL_SELECT_UNSUCESSFUL = "SELECT IdStudent, Jmeno, Prijmeni, DatumRegistrace, " +
+                                                       "PosledniPrihlaseni, \"Login\", Heslo, TypStudia_IdTypStudia " +
+                                                       "FROM Student s JOIN zapsanykurz z ON s.idstudent = z.student_idstudent " +
+                                                       "WHERE splneno = 0 AND year(datumukonceni) = year(GETDATE()) " +
+                                                       "GROUP BY IdStudent, Jmeno, Prijmeni, DatumRegistrace, " +
+                                                       "PosledniPrihlaseni, \"Login\", Heslo, TypStudia_IdTypStudia " +
+                                                       "HAVING count(splneno) >= 2";
 
-        private static string SQL_SELECT_BY_ID_COURSE = "SELECT IdStudent, Jmeno, Prijmeni, DatumRegistrace, PosledniPrihlaseni, " +
-                                                       "\"Login\", Heslo, TypStudia_IdTypStudia, Nazev FROM zapsanykurz JOIN student s ON " +
-                                                       "zapsanykurz.student_idstudent = s.idstudent JOIN typstudia t " +
-                                                       "ON s.typstudia_idtypstudia = t.idtypstudia " +
-                                                       "WHERE zapsanykurz.kurz_idkurz = @IdKurz";
+        private static string SQL_SELECT_BY_ID_COURSE = 
+            "SELECT IdStudent, Jmeno, Prijmeni, DatumRegistrace, PosledniPrihlaseni, " +
+            "\"Login\", Heslo, TypStudia_IdTypStudia FROM zapsanykurz JOIN student s ON " +
+            "zapsanykurz.student_idstudent = s.idstudent WHERE zapsanykurz.kurz_idkurz = @IdKurz";
         
         
         public static int Insert(Student student, Database pDb = null)
@@ -155,7 +154,7 @@ namespace LMSIS.Database.DaoSqls
                 (object)student.PosledniPrihlaseni);
             command.Parameters.AddWithValue("@Login", student.Login);
             command.Parameters.AddWithValue("@Heslo", student.Heslo);
-            command.Parameters.AddWithValue("@TypStudia_IdTypStudia", student.TypStudia.IdTypStudia);
+            command.Parameters.AddWithValue("@TypStudia_IdTypStudia", student.IdTypStudia);
         }
                 
         private static Collection<Student> Read(SqlDataReader reader, bool complete)
@@ -177,10 +176,8 @@ namespace LMSIS.Database.DaoSqls
 
                 student.Login = reader.GetString(++i);
                 student.Heslo = reader.GetString(++i);
-                student.TypStudia = new TypStudia();
-
-                student.TypStudia.IdTypStudia = reader.GetInt32(++i);
-                student.TypStudia.Nazev = reader.GetString(++i);
+                student.IdTypStudia = reader.GetInt32(++i);
+                student.TypStudia = TypStudiaTable.SelectOne(student.IdTypStudia);
 
                 students.Add(student);
             }
