@@ -8,7 +8,7 @@ namespace LMSIS.Database.Models
         public DateTime DatumZapisu { get; set; }
         public DateTime? DatumUkonceni { get; set; }
         public bool? Splneno { get; set; }
-        public Student Student_IdStudent { get; set; }
-        public Kurz Kurz_IdKurz { get; set; }
+        public Student Student { get; set; }
+        public Kurz Kurz { get; set; }
     }
 }

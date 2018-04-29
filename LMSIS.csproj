@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+      <Reference Include="System.Configuration"/>
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -48,6 +49,7 @@
     <Compile Include="Database\DaoSqls\VyucujiciTable.cs" />
     <Compile Include="Database\DaoSqls\VyukovyMaterialTable.cs" />
     <Compile Include="Database\DaoSqls\ZapsanyKurzTable.cs" />
+      <Compile Include="Database\Database.cs"/>
     <Compile Include="Database\Models\HistorieMaterialu.cs" />
     <Compile Include="Database\Models\Kurz.cs" />
     <Compile Include="Database\Models\KurzFronta.cs" />
@@ -58,9 +60,13 @@
     <Compile Include="Database\Models\Vyucujici.cs" />
     <Compile Include="Database\Models\VyukovyMaterial.cs" />
     <Compile Include="Database\Models\ZapsanyKurz.cs" />
+      <Compile Include="Extensions\Extensions.cs"/>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+    <ItemGroup>
+        <Content Include="App.config"/>
+    </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
