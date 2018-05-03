@@ -14,7 +14,7 @@ namespace LMSIS.Database.DaoSqls
 
         private static string SQL_DELETE_ID = "DELETE FROM KurzFronta WHERE IdKurzFronta=@IdKurzFronta";
 
-        private static string SQL_MATERIALS_BY_COURSE = "SELECT s.* FROM kurzfronta kf JOIN student s ON " +
+        private static string SQL_STUDENTS_BY_COURSE = "SELECT s.* FROM kurzfronta kf JOIN student s ON " +
                                                         "kf.student_idstudent = s.idstudent WHERE kurz_idkurz=@IdKurz";
 
         public static int Insert(KurzFronta kf, Database pDb = null)
@@ -60,7 +60,7 @@ namespace LMSIS.Database.DaoSqls
             {
                 db.Connect();
 
-                using (SqlCommand command = db.CreateCommand(SQL_MATERIALS_BY_COURSE))
+                using (SqlCommand command = db.CreateCommand(SQL_STUDENTS_BY_COURSE))
                 {
                     command.Parameters.AddWithValue("@IdKurz", idKurz);
 

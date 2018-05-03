@@ -8,6 +8,7 @@ namespace LMSIS.Database.DaoSqls
 {
     public class ZapsanyKurzTable
     {
+        
         private static string TABLE_NAME = "ZapsanyKurz";
         
         private static string SQL_INSERT = "spZapisKurz";
