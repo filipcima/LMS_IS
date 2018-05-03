@@ -5,12 +5,12 @@ using LMSIS.Database.Models;
 
 namespace LMSIS.Database.DaoSqls
 {
-    public class VyucujiciTable
+    public static class VyucujiciTable
     {
         private static string TABLE_NAME = "Vyucujici";
 
         private static string SQL_INSERT = "INSERT INTO Vyucujici VALUES (@Titul, @Jmeno, @Prijmeni, @Login," +
-                                          "@Heslo, @DatumNarozeni)";
+                                           "@Heslo, @DatumNarozeni)";
 
         private static string SQL_UPDATE = "UPDATE Vyucujici SET Titul=@Titul, Jmeno=@Jmeno, Prijmeni=@Prijmeni, " +
                                            "Login=@Login, Heslo=@Heslo, DatumNarozeni=@DatumNarozeni " +
@@ -18,11 +18,12 @@ namespace LMSIS.Database.DaoSqls
 
         private static string SQL_DELETE_ID = "DELETE FROM Vyucujici WHERE Vyucujici=@IdVyucujici";
 
-        private static string SQL_SELECT_ID = "SELECT IdVyucujici, Titul, Jmeno, Prijmeni, \"Login\", " +
-                                             "Heslo, DatumNarozeni FROM Vyucujici WHERE IdVyucujici=@IdVyucujici";
+        private static string SQL_SELECT_ID = "SELECT v.IdVyucujici, v.Titul, v.Jmeno, v.Prijmeni, v.\"Login\", " +
+                                              "v.Heslo, v.DatumNarozeni FROM Vyucujici v WHERE IdVyucujici=@IdVyucujici";
 
-        private static string SQL_SELECT_BY_COURSE_NAME = "SELECT v.* FROM vyucujici v JOIN kurz k ON v.idvyucujici = " +
-                                                         "k.vyucujici_idvyucujici WHERE k.nazev = @Nazev";
+        private static string SQL_SELECT_BY_COURSE_NAME = "SELECT v.IdVyucujici, v.Titul, v.Jmeno, v.Prijmeni, v.\"Login\", " +
+                                                          "v.Heslo, v.DatumNarozeni FROM vyucujici v JOIN kurz k ON " +
+                                                          "v.idvyucujici = k.vyucujici_idvyucujici WHERE k.nazev = @Nazev";
         
         
         public static int Insert(Vyucujici vyucujici, Database pDb = null)

@@ -6,7 +6,7 @@ using LMSIS.Database.Models;
 
 namespace LMSIS.Database.DaoSqls
 {
-    public class PisemkaTable
+    public static class PisemkaTable
     {
         private static string TABLE_NAME = "Pisemka";
         private static string SQL_INSERT = "spVytvorPisemku";
@@ -17,21 +17,23 @@ namespace LMSIS.Database.DaoSqls
 
         private static string SQL_DELETE_ID = "DELETE FROM Pisemka WHERE IdPisemka=@IdPisemka";
 
-        private static string SQL_SELECT_ID = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace " +
-                                              "FROM Pisemka p WHERE IdPisemka=@IdPisemka";
+        private static string SQL_SELECT_ID = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace, " +
+                                              "zk.DatumZapisu, zk.Student_IdStudent, zk.Kurz_IdKurz FROM Pisemka p " +
+                                              "JOIN ZapsanyKurz zk ON zk.IdRegistrace = p.ZapsanyKurz_IdRegistrace " +
+                                              "WHERE IdPisemka=@IdPisemka";
 
         private static string SQL_AVG_MARK = "SELECT avg(p.znamka) FROM pisemka p JOIN zapsanykurz z ON " +
                                              "p.zapsanykurz_idregistrace = z.idregistrace WHERE z.kurz_idkurz=@IdKurz";
 
-        private static string SQL_UPCOMING_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace " +
-                                                   "FROM pisemka p JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace " +
-                                                   "= zk.IdRegistrace WHERE zk.student_idstudent=@IdStudent " +
-                                                   "AND getdate() < p.datumtestu";
+        private static string SQL_UPCOMING_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace, " +
+                                                   "zk.DatumZapisu, zk.Student_IdStudent, zk.Kurz_IdKurz FROM pisemka p " +
+                                                   "JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace = zk.IdRegistrace " +
+                                                   "WHERE zk.student_idstudent=@IdStudent AND getdate() < p.datumtestu";
 
-        private static string SQL_PAST_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace " +
-                                               "FROM pisemka p JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace " +
-                                               "= zk.IdRegistrace WHERE zk.student_idstudent=@IdStudent " +
-                                               "AND getdate() > p.datumtestu";
+        private static string SQL_PAST_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace, " +
+                                               "zk.DatumZapisu, zk.Student_IdStudent, zk.Kurz_IdKurz FROM pisemka p JOIN " +
+                                               "ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace = zk.IdRegistrace WHERE " +
+                                               "zk.student_idstudent=@IdStudent AND getdate() > p.datumtestu";
 
         private static string SQL_TEST_CHECK = "spZkontrolujPisemky";
         
@@ -50,7 +52,7 @@ namespace LMSIS.Database.DaoSqls
 
             SqlCommand command = db.CreateCommand(SQL_INSERT);
             command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@IdZapsanyKurz", pisemka.ZapsanyKurz.Kurz.IdKurz);
+            command.Parameters.AddWithValue("@IdZapsanyKurz", pisemka.ZapsanyKurz.IdKurz);
             command.Parameters.AddWithValue("@DatumTestu", pisemka.DatumPisemky);
             int ret = db.ExecuteNonQuery(command);
 
@@ -220,11 +222,14 @@ namespace LMSIS.Database.DaoSqls
                 {
                     pisemka.Znamka = reader.GetByte(i);
                 }
-
-                pisemka.IdZapsanyKurz = reader.GetInt32(++i);
-                pisemka.ZapsanyKurz = ZapsanyKurzTable.SelectOne(pisemka.IdZapsanyKurz);
                 
-
+                pisemka.IdZapsanyKurz = reader.GetInt32(++i);
+                pisemka.ZapsanyKurz = new ZapsanyKurz();
+                pisemka.ZapsanyKurz.IdRegistrace = pisemka.IdZapsanyKurz;
+                pisemka.ZapsanyKurz.DatumZapisu = DateTime.Parse(reader.GetString(++i));
+                pisemka.ZapsanyKurz.IdStudent = reader.GetInt32(++i);
+                pisemka.ZapsanyKurz.IdKurz = reader.GetInt32(++i);
+                
                 pisemky.Add(pisemka);
             }
             

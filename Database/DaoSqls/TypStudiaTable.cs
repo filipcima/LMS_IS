@@ -5,7 +5,7 @@ using LMSIS.Database.Models;
 
 namespace LMSIS.Database.DaoSqls
 {
-    public class TypStudiaTable
+    public static class TypStudiaTable
     {
         private static string TABLE_NAME = "TypStudia";
         private static string SQL_SELECT_ID = "SELECT IdTypStudia, Nazev FROM TypStudia WHERE IdTypStudia=@IdTypStudia";

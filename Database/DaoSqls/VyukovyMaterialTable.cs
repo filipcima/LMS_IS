@@ -6,7 +6,7 @@ using LMSIS.Database.Models;
 
 namespace LMSIS.Database.DaoSqls
 {
-    public class VyukovyMaterialTable
+    public static class VyukovyMaterialTable
     {
         private static string TABLE_NAME = "VyukovyMaterial";
         
@@ -19,13 +19,17 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_DELETE_ID = "DELETE FROM VyukovyMaterial WHERE IdVyukovyMaterial=@IdVyukovyMaterial";
 
         private static string SQL_SELECT_ID = "SELECT vm.idvyukovymaterial, vm.nazev, vm.text, vm.vlozen, " +
-                                              "vm.vyucujici_idvyucujici, vm.kurz_IdKurz FROM VyukovyMaterial vm " +
-                                              "WHERE IdVyukovyMaterial=@IdVyukovyMaterial";
+                                              "vm.vyucujici_idvyucujici, vm.kurz_IdKurz, k.Nazev, k.Popis, k.Vytvoren, " +
+                                              "k.Vyucujici_IdVyucujici, k.Obor_IdObor, k.Kapacita, v.Titul, v.Jmeno, " +
+                                              "v.Prijmeni FROM VyukovyMaterial vm JOIN vyucujici v ON v.IdVyucujici = " +
+                                              "vm.Vyucujici_IdVyucujici JOIN Kurz k ON k.IdKurz = vm.Kurz_IdKurz WHERE " +
+                                              "IdVyukovyMaterial=@IdVyukovyMaterial";
 
         private static string SQL_MATERIALS_BY_COURSE = "SELECT vm.idvyukovymaterial, vm.nazev, vm.text, vm.vlozen, " +
-                                                        "vm.vyucujici_idvyucujici, vm.kurz_idkurz " +
-                                                       "FROM vyukovymaterial vm JOIN kurz k ON vm.kurz_idkurz = " +
-                                                       "k.idkurz WHERE k.idkurz = @IdKurz";
+                                                        "vm.vyucujici_idvyucujici, vm.kurz_IdKurz, v.Titul, v.Jmeno, " +
+                                                        "v.Prijmeni FROM VyukovyMaterial vm JOIN vyucujici v ON v.IdVyucujici = " +
+                                                        "vm.Vyucujici_IdVyucujici JOIN Kurz k ON k.IdKurz = vm.Kurz_IdKurz " +
+                                                        "WHERE k.IdKurz=@IdKurz";
         
         public static int Insert(VyukovyMaterial vm, Database pDb = null)
         {
@@ -110,7 +114,7 @@ namespace LMSIS.Database.DaoSqls
 
                     SqlDataReader reader = db.Select(command);
 
-                    Collection<VyukovyMaterial> materialy = Read(reader, true);
+                    Collection<VyukovyMaterial> materialy = Read(reader, false);
                     
                     return materialy;
                 }
@@ -124,8 +128,8 @@ namespace LMSIS.Database.DaoSqls
             command.Parameters.AddWithValue("@Nazev", vm.Nazev);
             command.Parameters.AddWithValue("@Text", vm.Text);
             command.Parameters.AddWithValue("@Vlozen", vm.Vlozen);
-            command.Parameters.AddWithValue("@IdVyucujici", vm.Autor.IdVyucujici);
-            command.Parameters.AddWithValue("@IdKurz", vm.Kurz.IdKurz);
+            command.Parameters.AddWithValue("@IdVyucujici", vm.IdVyucujici);
+            command.Parameters.AddWithValue("@IdKurz", vm.IdKurz);
         }
         
         private static Collection<VyukovyMaterial> Read(SqlDataReader reader, bool complete)
@@ -141,9 +145,26 @@ namespace LMSIS.Database.DaoSqls
                 vm.Text = reader.GetString(++i);
                 vm.Vlozen = DateTime.Parse(reader.GetString(++i));
                 vm.IdVyucujici = reader.GetInt32(++i);
-                vm.Autor = VyucujiciTable.SelectOne(vm.IdVyucujici);
                 vm.IdKurz = reader.GetInt32(++i);
-                vm.Kurz = KurzTable.SelectOne(vm.IdKurz);
+                if (complete)
+                {
+                    vm.Kurz = new Kurz();
+                    vm.Kurz.IdKurz = vm.IdKurz;
+                    vm.Kurz.Nazev = reader.GetString(++i);
+                    vm.Kurz.Popis = reader.GetString(++i);
+                    vm.Kurz.Vytvoren = DateTime.Parse(reader.GetString(++i));
+                    vm.Kurz.IdVyucujici = reader.GetInt32(++i);
+                    vm.Kurz.IdObor = reader.GetInt32(++i);
+                    vm.Kurz.Kapacita = reader.GetByte(++i);
+                }
+                vm.Autor = new Vyucujici();
+                vm.Autor.IdVyucujici = vm.IdVyucujici;
+                if (!reader.IsDBNull(++i))
+                {
+                    vm.Autor.Titul = reader.GetString(i);    
+                }
+                vm.Autor.Jmeno = reader.GetString(++i);
+                vm.Autor.Prijmeni = reader.GetString(++i);
                 
                 materialy.Add(vm);
             }

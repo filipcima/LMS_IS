@@ -4,11 +4,11 @@ using LMSIS.Database.Models;
 
 namespace LMSIS.Database.DaoSqls
 {
-    public class OborTable
+    public static class OborTable
     {
         private static string TABLE_NAME = "Obor";
         private static string SQL_INSERT = "INSERT INTO Obor VALUES (@Nazev, @Popis)";
-        private static string SQL_UPDATE = "UPDATE Obor SET IdObor=@IdObor, Nazev=@Nazev, Popis=@Popis WHERE IdObor=@IdObor";
+        private static string SQL_UPDATE = "UPDATE Obor SET Nazev=@Nazev, Popis=@Popis WHERE IdObor=@IdObor";
         private static string SQL_DELETE_ID = "DELETE FROM Obor WHERE IdObor=@IdObor";
         private static string SQL_SELECT_ID = "SELECT IdObor, Nazev, Popis FROM Obor WHERE IdObor=@IdObor";
         private static string SQL_SELECT_ALL = "SELECT IdObor, Nazev, Popis FROM Obor";

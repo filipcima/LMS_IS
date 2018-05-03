@@ -5,7 +5,7 @@ using LMSIS.Database.Models;
 
 namespace LMSIS.Database.DaoSqls
 {
-    public class HistorieMaterialuTable
+    public static class HistorieMaterialuTable
     {
         private static string TABLE_NAME = "HistorieMaterialu";
         
@@ -16,12 +16,13 @@ namespace LMSIS.Database.DaoSqls
         
         private static string SQL_DELETE_ID = "DELETE FROM HistorieMaterialu WHERE IdHistorie=@IdHistorie";
         
-        private static string SQL_SELECT_ID = "SELECT IdHistorie, DatumZmeny, TypZmeny, VyukovyMaterial_Id, h.Nazev, " +
+        private static string SQL_SELECT_ID = "SELECT h.IdHistorie, h.DatumZmeny, h.TypZmeny, h.VyukovyMaterial_Id, h.Nazev, " +
                                              "h.Text, h.Vlozen FROM historiematerialu h WHERE IdHistorie=@IdHistorie ";
         
-        private static string SQL_SELECT_LIST_ID = "SELECT IdHistorie, DatumZmeny, TypZmeny, VyukovyMaterial_Id, h.Nazev, " +
-                                                  "h.Text, h.Vlozen FROM historiematerialu h WHERE " +
-                                                   "h.vyukovymaterial_id = @IdVyukovyMaterial";
+        private static string SQL_SELECT_LIST_ID = 
+            "SELECT IdHistorie, DatumZmeny, TypZmeny, VyukovyMaterial_Id, h.Nazev, h.Text, h.Vlozen, v.Nazev, v.Text, " +
+            "v.Kurz_IdKurz, v.Vyucujici_IdVyucujici FROM historiematerialu h JOIN VyukovyMaterial v ON " +
+            "v.IdVyukovyMaterial = h.VyukovyMaterial_Id WHERE h.vyukovymaterial_id = @IdVyukovyMaterial";
         
         public static int Delete(int idHistorie)
         {
@@ -35,6 +36,25 @@ namespace LMSIS.Database.DaoSqls
             return ret;
         }
 
+        public static HistorieMaterialu GetParticularMaterial(int idHistorie)
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_SELECT_ID))
+                {
+                    command.Parameters.AddWithValue("@IdHistorie", idHistorie);
+
+                    SqlDataReader reader = db.Select(command);
+
+                    Collection<HistorieMaterialu> materials = Read(reader, false);
+                    
+                    return materials.Count == 1 ? materials[0] : null;
+                }
+            }
+        }
+        
         public static Collection<HistorieMaterialu> GetMaterialsByIdVyukovyMaterial(int idVyukovyMaterial)
         {
             using (Database db = new Database())
@@ -52,7 +72,6 @@ namespace LMSIS.Database.DaoSqls
                     return materials;
                 }
             }
-
         }
 
         private static void PrepareCommand(SqlCommand command, HistorieMaterialu hm)
@@ -79,30 +98,23 @@ namespace LMSIS.Database.DaoSqls
                 hm.DatumZmeny = DateTime.Parse(reader.GetString(++i));
                 hm.TypZmeny = reader.GetString(++i);
                 hm.IdVyukovyMaterial= reader.GetInt32(++i);
-                hm.Material = VyukovyMaterialTable.SelectOne(hm.IdVyukovyMaterial);
                 hm.Nazev = reader.GetString(++i);
                 hm.Text = reader.GetString(++i);
                 hm.Vlozen = DateTime.Parse(reader.GetString(++i));
-
+                if (complete)
+                {
+                    hm.Material = new VyukovyMaterial();
+                    hm.Material.IdVyukovyMaterial = hm.IdVyukovyMaterial;
+                    hm.Material.Nazev = reader.GetString(++i);
+                    hm.Material.Text = reader.GetString(++i);
+                    hm.Material.IdKurz = reader.GetInt32(++i);
+                    hm.Material.IdVyucujici = reader.GetInt32(++i);
+                }
+                
                 historieMaterialuCollection.Add(hm);
             }
 
             return historieMaterialuCollection;
-        }
-
-        private static Collection<Student> ReadStudents(SqlDataReader reader, bool complete)
-        {
-            Collection<Student> students = new Collection<Student>();
-
-            while (reader.Read())
-            {
-                Student student = new Student();
-                int i = -1;
-
-                students.Add(student);
-            }
-
-            return students;
         }
     }
 }

@@ -6,7 +6,7 @@ using LMSIS.Extensions;
 
 namespace LMSIS.Database.DaoSqls
 {
-    public class KurzFrontaTable
+    public static class KurzFrontaTable
     {
         private static string TABLE_NAME = "KurzFronta";
         
@@ -14,8 +14,10 @@ namespace LMSIS.Database.DaoSqls
 
         private static string SQL_DELETE_ID = "DELETE FROM KurzFronta WHERE IdKurzFronta=@IdKurzFronta";
 
-        private static string SQL_STUDENTS_BY_COURSE = "SELECT s.* FROM kurzfronta kf JOIN student s ON " +
-                                                        "kf.student_idstudent = s.idstudent WHERE kurz_idkurz=@IdKurz";
+        private static string SQL_STUDENTS_BY_COURSE = "SELECT s.IdStudent, s.DatumRegistrace, s.PosledniPrihlaseni, " +
+                                                       "s.Jmeno, s.Prijmeni, s.Login, s.TypStudia_IdTypStudia FROM " +
+                                                       "kurzfronta kf JOIN student s ON kf.student_idstudent = " +
+                                                       "s.idstudent WHERE kurz_idkurz=@IdKurz";
 
         public static int Insert(KurzFronta kf, Database pDb = null)
         {
@@ -66,7 +68,7 @@ namespace LMSIS.Database.DaoSqls
 
                     SqlDataReader reader = db.Select(command);
 
-                    Collection<Student> students = ReadStudents(reader, true);
+                    Collection<Student> students = Read(reader, true);
 
                     return students;
                 }
@@ -82,31 +84,7 @@ namespace LMSIS.Database.DaoSqls
             command.Parameters.AddWithValue("@TStamp", kf.Stamp);
         }
         
-        // todo: decide to keep or not this method
-        private static Collection<KurzFronta> Read(SqlDataReader reader, bool complete)
-        {
-            Collection<KurzFronta> kurzFrontas = new Collection<KurzFronta>();
-
-            while (reader.Read())
-            {
-                KurzFronta kf = new KurzFronta();
-
-                int i = -1;
-
-                kf.IdKurzFronta = reader.GetInt32(++i);
-                kf.Stamp = reader.GetDateTime(++i);
-                kf.IdStudent = reader.GetInt32(++i);
-                kf.Student = StudentTable.SelectOne(kf.IdStudent);
-                kf.IdKurz = reader.GetInt32(++i);
-                kf.Kurz = KurzTable.SelectOne(kf.IdKurz);
-                
-                kurzFrontas.Add(kf);
-            }
-
-            return kurzFrontas;
-        }
-
-        private static Collection<Student> ReadStudents(SqlDataReader reader, bool complete)
+        private static Collection<Student> Read(SqlDataReader reader, bool complete)
         {
             Collection<Student> students = new Collection<Student>();
 
@@ -125,7 +103,6 @@ namespace LMSIS.Database.DaoSqls
                 student.Jmeno = reader.GetString(++i);
                 student.Prijmeni = reader.GetString(++i);
                 student.Login = reader.GetString(++i);
-                student.Heslo = reader.GetString(++i);
                 student.TypStudia = new TypStudia();
                 student.TypStudia.IdTypStudia = reader.GetInt32(++i);
 

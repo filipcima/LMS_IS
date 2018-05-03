@@ -5,35 +5,35 @@ using LMSIS.Database.Models;
 
 namespace LMSIS.Database.DaoSqls
 {
-    public class StudentTable
+    public static class StudentTable
     {
         private static string TABLE_NAME = "Student";
 
         private static string SQL_INSERT = "INSERT INTO Student VALUES (@DatumRegistrace, @PosledniPrihlaseni, " +
                                           "@Jmeno, @Prijmeni, @Login, @Heslo, @TypStudia_IdTypStudia)";
 
-        private static string SQL_UPDATE = "UPDATE Student SET Jmeno=@Jmeno, Prijmeni=@Prijmeni," +
-                                          "DatumRegistrace=@DatumRegistrace, PosledniPrihlaseni=@PosledniPrihlaseni," +
+        private static string SQL_UPDATE = "UPDATE Student SET Jmeno=@Jmeno, Prijmeni=@Prijmeni, " +
+                                           "DatumRegistrace=@DatumRegistrace, PosledniPrihlaseni=@PosledniPrihlaseni," +
                                           "Login=@Login, Heslo=@Heslo, TypStudia_IdTypStudia=@TypStudia_IdTypStudia WHERE " +
                                           "IdStudent=@IdStudent";
 
         private static string SQL_DELETE_ID = "DELETE FROM Student WHERE IdStudent=@IdStudent";
 
-        private static string SQL_SELECT_ID = "SELECT IdStudent, Jmeno, Prijmeni, DatumRegistrace, PosledniPrihlaseni, " +
-                                             "\"Login\", Heslo, TypStudia_IdTypStudia FROM Student WHERE IdStudent=@IdStudent";
+        private static string SQL_SELECT_ID = "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, " +
+                                             "s.\"Login\", s.Heslo, s.TypStudia_IdTypStudia, t.Nazev FROM Student s JOIN TypStudia t " +
+                                             "ON t.IdTypStudia = s.TypStudia_IdTypStudia WHERE IdStudent=@IdStudent";
 
-        private static string SQL_SELECT_UNSUCESSFUL = "SELECT IdStudent, Jmeno, Prijmeni, DatumRegistrace, " +
-                                                       "PosledniPrihlaseni, \"Login\", Heslo, TypStudia_IdTypStudia " +
-                                                       "FROM Student s JOIN zapsanykurz z ON s.idstudent = z.student_idstudent " +
-                                                       "WHERE splneno = 0 AND year(datumukonceni) = year(GETDATE()) " +
-                                                       "GROUP BY IdStudent, Jmeno, Prijmeni, DatumRegistrace, " +
-                                                       "PosledniPrihlaseni, \"Login\", Heslo, TypStudia_IdTypStudia " +
-                                                       "HAVING count(splneno) >= 2";
+        private static string SQL_SELECT_UNSUCESSFUL = 
+            "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, s.\"Login\", s.Heslo, " +
+            "s.TypStudia_IdTypStudia, t.Nazev FROM Student s JOIN zapsanykurz z ON s.idstudent = z.student_idstudent " +
+            "JOIN TypStudia t ON t.IdTypStudia = s.TypStudia_IdTypStudia WHERE splneno = 0 AND year(datumukonceni) = " +
+            "year(GETDATE()) GROUP BY s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, " +
+            "\"Login\", Heslo, s.TypStudia_IdTypStudia, t.Nazev HAVING count(splneno) >= 2";
 
         private static string SQL_SELECT_BY_ID_COURSE = 
-            "SELECT IdStudent, Jmeno, Prijmeni, DatumRegistrace, PosledniPrihlaseni, " +
-            "\"Login\", Heslo, TypStudia_IdTypStudia FROM zapsanykurz JOIN student s ON " +
-            "zapsanykurz.student_idstudent = s.idstudent WHERE zapsanykurz.kurz_idkurz = @IdKurz";
+            "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, s.\"Login\", s.Heslo, " +
+            "s.TypStudia_IdTypStudia, t.Nazev FROM zapsanykurz JOIN student s ON zapsanykurz.student_idstudent = s.idstudent " +
+            "JOIN TypStudia t ON t.IdTypStudia = s.TypStudia_IdTypStudia WHERE zapsanykurz.kurz_idkurz = @IdKurz";
         
         
         public static int Insert(Student student, Database pDb = null)
@@ -177,7 +177,8 @@ namespace LMSIS.Database.DaoSqls
                 student.Login = reader.GetString(++i);
                 student.Heslo = reader.GetString(++i);
                 student.IdTypStudia = reader.GetInt32(++i);
-                student.TypStudia = TypStudiaTable.SelectOne(student.IdTypStudia);
+                student.TypStudia = new TypStudia();
+                student.TypStudia.Nazev = reader.GetString(++i);
 
                 students.Add(student);
             }
