@@ -9,11 +9,6 @@ namespace LMSIS.Database.DaoSqls
     {
         private static string TABLE_NAME = "HistorieMaterialu";
         
-        // not needed, we only want to insert into this table through the update trigger on VyukovyMaterial
-        // public static string SQL_INSERT = "INSERT INTO HistorieMaterialu VALUES (@IdHistorie, @DatumZmeny, @Typ...)";
-        
-        // no need to update this table
-        
         private static string SQL_DELETE_ID = "DELETE FROM HistorieMaterialu WHERE IdHistorie=@IdHistorie";
         
         private static string SQL_SELECT_ID = "SELECT h.IdHistorie, h.DatumZmeny, h.TypZmeny, h.VyukovyMaterial_Id, h.Nazev, " +
