@@ -92,7 +92,7 @@ namespace LMSIS.Database.DaoSqls
                 hm.IdHistorie = reader.GetInt32(++i);
                 hm.DatumZmeny = DateTime.Parse(reader.GetString(++i));
                 hm.TypZmeny = reader.GetString(++i);
-                hm.IdVyukovyMaterial= reader.GetInt32(++i);
+                hm.IdVyukovyMaterial = reader.GetInt32(++i);
                 hm.Nazev = reader.GetString(++i);
                 hm.Text = reader.GetString(++i);
                 hm.Vlozen = DateTime.Parse(reader.GetString(++i));

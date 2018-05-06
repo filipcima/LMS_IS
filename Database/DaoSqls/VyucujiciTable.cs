@@ -21,10 +21,9 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_SELECT_ID = "SELECT v.IdVyucujici, v.Titul, v.Jmeno, v.Prijmeni, v.\"Login\", " +
                                               "v.Heslo, v.DatumNarozeni FROM Vyucujici v WHERE IdVyucujici=@IdVyucujici";
 
-        private static string SQL_SELECT_BY_COURSE_NAME = "SELECT v.IdVyucujici, v.Titul, v.Jmeno, v.Prijmeni, v.\"Login\", " +
-                                                          "v.Heslo, v.DatumNarozeni FROM vyucujici v JOIN kurz k ON " +
-                                                          "v.idvyucujici = k.vyucujici_idvyucujici WHERE k.nazev = @Nazev";
-        
+        private static string SQL_SELECT_BY_COURSE_NAME = "SELECT v.IdVyucujici, v.Titul, v.Jmeno, v.Prijmeni, " +
+                                                          "v.\"Login\" FROM vyucujici v JOIN kurz k ON v.idvyucujici = " +
+                                                          "k.vyucujici_idvyucujici WHERE k.nazev = @Nazev";
         
         public static int Insert(Vyucujici vyucujici, Database pDb = null)
         {
@@ -113,7 +112,7 @@ namespace LMSIS.Database.DaoSqls
                 {
                     command.Parameters.AddWithValue("@Nazev", courseName);
                     SqlDataReader reader = db.Select(command);
-                    Collection<Vyucujici> teachers = Read(reader, true);
+                    Collection<Vyucujici> teachers = Read(reader, false);
                     
                     return teachers;
                 }
@@ -144,12 +143,16 @@ namespace LMSIS.Database.DaoSqls
                 {
                     vyucujici.Titul = reader.GetString(i);
                 }
+                
                 vyucujici.Jmeno = reader.GetString(++i);
                 vyucujici.Prijmeni = reader.GetString(++i);
                 vyucujici.Login = reader.GetString(++i);
-                vyucujici.Heslo = reader.GetString(++i);
-                vyucujici.DatumNarozeni = DateTime.Parse(reader.GetString(++i));
-                
+                if (complete)
+                {
+                    vyucujici.Heslo = reader.GetString(++i);
+                    vyucujici.DatumNarozeni = DateTime.Parse(reader.GetString(++i));
+                }
+
                 teachers.Add(vyucujici);
             }
             

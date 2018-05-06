@@ -24,16 +24,14 @@ namespace LMSIS.Database.DaoSqls
                                              "ON t.IdTypStudia = s.TypStudia_IdTypStudia WHERE IdStudent=@IdStudent";
 
         private static string SQL_SELECT_UNSUCESSFUL = 
-            "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, s.\"Login\", s.Heslo, " +
-            "s.TypStudia_IdTypStudia, t.Nazev FROM Student s JOIN zapsanykurz z ON s.idstudent = z.student_idstudent " +
-            "JOIN TypStudia t ON t.IdTypStudia = s.TypStudia_IdTypStudia WHERE splneno = 0 AND year(datumukonceni) = " +
-            "year(GETDATE()) GROUP BY s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, " +
-            "\"Login\", Heslo, s.TypStudia_IdTypStudia, t.Nazev HAVING count(splneno) >= 2";
+            "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.TypStudia_IdTypStudia FROM Student s JOIN zapsanykurz z " +
+            "ON s.idstudent = z.student_idstudent WHERE splneno = 0 AND year(datumukonceni) = year(GETDATE()) " +
+            "GROUP BY s.IdStudent, s.Jmeno, s.Prijmeni, s.TypStudia_IdTypStudia HAVING count(splneno) >= 2";
 
         private static string SQL_SELECT_BY_ID_COURSE = 
-            "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, s.\"Login\", s.Heslo, " +
-            "s.TypStudia_IdTypStudia, t.Nazev FROM zapsanykurz JOIN student s ON zapsanykurz.student_idstudent = s.idstudent " +
-            "JOIN TypStudia t ON t.IdTypStudia = s.TypStudia_IdTypStudia WHERE zapsanykurz.kurz_idkurz = @IdKurz";
+            "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.TypStudia_IdTypStudia FROM zapsanykurz zk JOIN student s ON " +
+            "zk.student_idstudent = s.idstudent JOIN TypStudia t ON t.IdTypStudia = s.TypStudia_IdTypStudia " +
+            "WHERE zk.kurz_idkurz = @IdKurz";
         
         
         public static int Insert(Student student, Database pDb = null)
@@ -122,7 +120,7 @@ namespace LMSIS.Database.DaoSqls
                 using (SqlCommand command = db.CreateCommand(SQL_SELECT_UNSUCESSFUL))
                 {
                     SqlDataReader reader = db.Select(command);
-                    Collection<Student> students = Read(reader, true);
+                    Collection<Student> students = Read(reader, false);
                     return students;
                 }
             }
@@ -138,7 +136,7 @@ namespace LMSIS.Database.DaoSqls
                 {
                     command.Parameters.AddWithValue("@IdKurz", idKurz);
                     SqlDataReader reader = db.Select(command);
-                    Collection<Student> students = Read(reader, true);
+                    Collection<Student> students = Read(reader, false);
                     return students;
                 }
             }
@@ -168,18 +166,26 @@ namespace LMSIS.Database.DaoSqls
                 student.IdStudent = reader.GetInt32(++i);
                 student.Jmeno = reader.GetString(++i);
                 student.Prijmeni = reader.GetString(++i);
-                student.DatumRegistrace = DateTime.Parse(reader.GetString(++i));
-                if (!reader.IsDBNull(++i))
+                if (complete)
                 {
-                    student.PosledniPrihlaseni = DateTime.Parse(reader.GetString(i));
-                }
+                    student.DatumRegistrace = DateTime.Parse(reader.GetString(++i));
+                    if (!reader.IsDBNull(++i))
+                    {
+                        student.PosledniPrihlaseni = DateTime.Parse(reader.GetString(i));
+                    }
 
-                student.Login = reader.GetString(++i);
-                student.Heslo = reader.GetString(++i);
+                    student.Login = reader.GetString(++i);
+                    student.Heslo = reader.GetString(++i);    
+                }
+                
                 student.IdTypStudia = reader.GetInt32(++i);
                 student.TypStudia = new TypStudia();
-                student.TypStudia.Nazev = reader.GetString(++i);
-
+                student.TypStudia.IdTypStudia = student.IdTypStudia;
+                if (complete)
+                {
+                    student.TypStudia.Nazev = reader.GetString(++i);    
+                }
+                
                 students.Add(student);
             }
             

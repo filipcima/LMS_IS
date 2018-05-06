@@ -25,7 +25,7 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_AVG_MARK = "SELECT avg(p.znamka) FROM pisemka p JOIN zapsanykurz z ON " +
                                              "p.zapsanykurz_idregistrace = z.idregistrace WHERE z.kurz_idkurz=@IdKurz";
 
-        private static string SQL_UPCOMING_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace, " +
+        private static string SQL_UPCOMING_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.ZapsanyKurz_IdRegistrace, " +
                                                    "zk.DatumZapisu, zk.Student_IdStudent, zk.Kurz_IdKurz FROM pisemka p " +
                                                    "JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace = zk.IdRegistrace " +
                                                    "WHERE zk.student_idstudent=@IdStudent AND getdate() < p.datumtestu";
@@ -123,7 +123,7 @@ namespace LMSIS.Database.DaoSqls
 
                     SqlDataReader reader = db.Select(command);
 
-                    Collection<Pisemka> pisemky = Read(reader, true);
+                    Collection<Pisemka> pisemky = Read(reader, false);
 
                     return pisemky;
                 }
@@ -218,9 +218,12 @@ namespace LMSIS.Database.DaoSqls
                     pisemka.DatumPisemky = DateTime.Parse(reader.GetString(i));
                 }
 
-                if (!reader.IsDBNull(++i))
+                if (complete)
                 {
-                    pisemka.Znamka = reader.GetByte(i);
+                    if (!reader.IsDBNull(++i))
+                    {
+                        pisemka.Znamka = reader.GetByte(i);
+                    }    
                 }
                 
                 pisemka.IdZapsanyKurz = reader.GetInt32(++i);

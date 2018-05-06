@@ -13,8 +13,7 @@ namespace LMSIS.Database.DaoSqls
 
         private static string SQL_DELETE_ID = "DELETE FROM KurzFronta WHERE IdKurzFronta=@IdKurzFronta";
 
-        private static string SQL_STUDENTS_BY_COURSE = "SELECT s.IdStudent, s.DatumRegistrace, s.PosledniPrihlaseni, " +
-                                                       "s.Jmeno, s.Prijmeni, s.Login, s.TypStudia_IdTypStudia FROM " +
+        private static string SQL_STUDENTS_BY_COURSE = "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.Login FROM " +
                                                        "kurzfronta kf JOIN student s ON kf.student_idstudent = " +
                                                        "s.idstudent WHERE kurz_idkurz=@IdKurz";
 
@@ -94,17 +93,10 @@ namespace LMSIS.Database.DaoSqls
                 int i = -1;
 
                 student.IdStudent = reader.GetInt32(++i);
-                student.DatumRegistrace = DateTime.Parse(reader.GetString(++i));
-                if (!reader.IsDBNull(++i))
-                {
-                    student.PosledniPrihlaseni = DateTime.Parse(reader.GetString(i));
-                }
                 student.Jmeno = reader.GetString(++i);
                 student.Prijmeni = reader.GetString(++i);
                 student.Login = reader.GetString(++i);
-                student.TypStudia = new TypStudia();
-                student.TypStudia.IdTypStudia = reader.GetInt32(++i);
-
+               
                 students.Add(student);
             }
 

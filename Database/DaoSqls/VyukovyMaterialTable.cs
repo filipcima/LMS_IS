@@ -19,7 +19,7 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_DELETE_ID = "DELETE FROM VyukovyMaterial WHERE IdVyukovyMaterial=@IdVyukovyMaterial";
 
         private static string SQL_SELECT_ID = "SELECT vm.idvyukovymaterial, vm.nazev, vm.text, vm.vlozen, " +
-                                              "vm.vyucujici_idvyucujici, vm.kurz_IdKurz, k.Nazev, k.Popis, k.Vytvoren, " +
+                                              "vm.vyucujici_idvyucujici, vm.kurz_IdKurz, k.Nazev, k.Popis, " +
                                               "k.Vyucujici_IdVyucujici, k.Obor_IdObor, k.Kapacita, v.Titul, v.Jmeno, " +
                                               "v.Prijmeni FROM VyukovyMaterial vm JOIN vyucujici v ON v.IdVyucujici = " +
                                               "vm.Vyucujici_IdVyucujici JOIN Kurz k ON k.IdKurz = vm.Kurz_IdKurz WHERE " +
@@ -152,17 +152,18 @@ namespace LMSIS.Database.DaoSqls
                     vm.Kurz.IdKurz = vm.IdKurz;
                     vm.Kurz.Nazev = reader.GetString(++i);
                     vm.Kurz.Popis = reader.GetString(++i);
-                    vm.Kurz.Vytvoren = DateTime.Parse(reader.GetString(++i));
                     vm.Kurz.IdVyucujici = reader.GetInt32(++i);
                     vm.Kurz.IdObor = reader.GetInt32(++i);
                     vm.Kurz.Kapacita = reader.GetByte(++i);
                 }
+                
                 vm.Autor = new Vyucujici();
                 vm.Autor.IdVyucujici = vm.IdVyucujici;
                 if (!reader.IsDBNull(++i))
                 {
                     vm.Autor.Titul = reader.GetString(i);    
                 }
+                
                 vm.Autor.Jmeno = reader.GetString(++i);
                 vm.Autor.Prijmeni = reader.GetString(++i);
                 

@@ -12,7 +12,6 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_DELETE_ID = "DELETE FROM Obor WHERE IdObor=@IdObor";
         private static string SQL_SELECT_ID = "SELECT IdObor, Nazev, Popis FROM Obor WHERE IdObor=@IdObor";
         private static string SQL_SELECT_ALL = "SELECT IdObor, Nazev, Popis FROM Obor";
-
         
         public static int Insert(Obor obor, Database pDb = null)
         {
