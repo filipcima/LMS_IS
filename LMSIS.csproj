@@ -60,7 +60,6 @@
     <Compile Include="Database\Models\Vyucujici.cs" />
     <Compile Include="Database\Models\VyukovyMaterial.cs" />
     <Compile Include="Database\Models\ZapsanyKurz.cs" />
-      <Compile Include="Extensions\Extensions.cs"/>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
