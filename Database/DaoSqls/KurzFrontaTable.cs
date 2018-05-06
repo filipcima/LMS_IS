@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using LMSIS.Database.Models;
-using LMSIS.Extensions;
 
 namespace LMSIS.Database.DaoSqls
 {
