@@ -108,6 +108,8 @@ namespace LMSIS
             Console.WriteLine(ZapsanyKurzTable.SelectRunningCourses());
             // 4.2
             Console.WriteLine(ZapsanyKurzTable.SelectStoppedCourses());
+            // 4.5
+            Console.WriteLine(KurzTable.SelectNonFullCourses());
             
             // VYUKOVYMATERIAL TABLE
             Console.WriteLine("VyukovyMaterial");
