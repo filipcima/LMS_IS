@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LMSIS</RootNamespace>
     <AssemblyName>LMSIS</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-      <Reference Include="System.Configuration"/>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -49,7 +50,7 @@
     <Compile Include="Database\DaoSqls\VyucujiciTable.cs" />
     <Compile Include="Database\DaoSqls\VyukovyMaterialTable.cs" />
     <Compile Include="Database\DaoSqls\ZapsanyKurzTable.cs" />
-      <Compile Include="Database\Database.cs"/>
+    <Compile Include="Database\Database.cs" />
     <Compile Include="Database\Models\HistorieMaterialu.cs" />
     <Compile Include="Database\Models\Kurz.cs" />
     <Compile Include="Database\Models\KurzFronta.cs" />
@@ -63,9 +64,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-    <ItemGroup>
-        <Content Include="App.config"/>
-    </ItemGroup>
+  <ItemGroup>
+    <Content Include="App.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.

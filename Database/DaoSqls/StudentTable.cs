@@ -168,10 +168,10 @@ namespace LMSIS.Database.DaoSqls
                 student.Prijmeni = reader.GetString(++i);
                 if (complete)
                 {
-                    student.DatumRegistrace = DateTime.Parse(reader.GetString(++i));
+                    student.DatumRegistrace = reader.GetDateTime(++i);
                     if (!reader.IsDBNull(++i))
                     {
-                        student.PosledniPrihlaseni = DateTime.Parse(reader.GetString(i));
+                        student.PosledniPrihlaseni = reader.GetDateTime(i);
                     }
 
                     student.Login = reader.GetString(++i);

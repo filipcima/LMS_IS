@@ -9,6 +9,7 @@ namespace LMSIS.Database.DaoSqls
     public static class PisemkaTable
     {
         private static string TABLE_NAME = "Pisemka";
+
         private static string SQL_INSERT = "spVytvorPisemku";
 
         private static string SQL_UPDATE = "UPDATE Pisemka SET DatumTestu=@DatumTestu, " +
@@ -25,18 +26,18 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_AVG_MARK = "SELECT avg(p.znamka) FROM pisemka p JOIN zapsanykurz z ON " +
                                              "p.zapsanykurz_idregistrace = z.idregistrace WHERE z.kurz_idkurz=@IdKurz";
 
-        private static string SQL_UPCOMING_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.ZapsanyKurz_IdRegistrace, " +
-                                                   "zk.DatumZapisu, zk.Student_IdStudent, zk.Kurz_IdKurz FROM pisemka p " +
-                                                   "JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace = zk.IdRegistrace " +
-                                                   "WHERE zk.student_idstudent=@IdStudent AND getdate() < p.datumtestu";
+        private static string SQL_UPCOMING_TESTS =
+            "SELECT p.IdPisemka, p.DatumTestu, k.Nazev FROM pisemka p JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace " +
+            "= zk.IdRegistrace JOIN kurz k ON k.IdKurz = zk.kurz_idkurz WHERE zk.student_idstudent=@IdStudent AND " +
+            "getdate() < p.datumtestu AND zk.kurz_IdKurz = @IdKurz";
 
-        private static string SQL_PAST_TESTS = "SELECT p.IdPisemka, p.DatumTestu, p.Znamka, p.ZapsanyKurz_IdRegistrace, " +
-                                               "zk.DatumZapisu, zk.Student_IdStudent, zk.Kurz_IdKurz FROM pisemka p JOIN " +
-                                               "ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace = zk.IdRegistrace WHERE " +
-                                               "zk.student_idstudent=@IdStudent AND getdate() > p.datumtestu";
+        private static string SQL_PAST_TESTS =
+            "SELECT p.IdPisemka, p.DatumTestu, k.Nazev, p.Znamka FROM pisemka p JOIN ZapsanyKurz zk ON p.ZapsanyKurz_IdRegistrace " +
+            "= zk.IdRegistrace JOIN kurz k ON k.IdKurz = zk.kurz_idkurz WHERE zk.student_idstudent=@IdStudent AND " +
+            "getdate() > p.datumtestu AND zk.kurz_IdKurz = @IdKurz";
 
         private static string SQL_TEST_CHECK = "spZkontrolujPisemky";
-        
+
         public static int Insert(Pisemka pisemka, Database pDb = null)
         {
             Database db;
@@ -63,7 +64,7 @@ namespace LMSIS.Database.DaoSqls
 
             return ret;
         }
-        
+
         public static int Update(Pisemka pisemka)
         {
             var db = new Database();
@@ -87,7 +88,7 @@ namespace LMSIS.Database.DaoSqls
             db.Close();
             return ret;
         }
-        
+
         public static Pisemka SelectOne(int idPisemka)
         {
             using (Database db = new Database())
@@ -110,8 +111,8 @@ namespace LMSIS.Database.DaoSqls
             }
             return null;
         }
-        
-        public static Collection<Pisemka> SelectUpcomingTests(int idStudent)
+
+        public static Collection<Pisemka> SelectUpcomingTests(ZapsanyKurz course)
         {
             using (Database db = new Database())
             {
@@ -119,18 +120,19 @@ namespace LMSIS.Database.DaoSqls
 
                 using (SqlCommand command = db.CreateCommand(SQL_UPCOMING_TESTS))
                 {
-                    command.Parameters.AddWithValue("@IdStudent", idStudent);
+                    command.Parameters.AddWithValue("@IdStudent", course.IdStudent);
+                    command.Parameters.AddWithValue("@IdKurz", course.IdKurz);
 
                     SqlDataReader reader = db.Select(command);
 
-                    Collection<Pisemka> pisemky = Read(reader, false);
+                    Collection<Pisemka> pisemky = Read2(reader, false);
 
                     return pisemky;
                 }
             }
         }
-        
-        public static Collection<Pisemka> SelectPastTests(int idStudent)
+
+        public static Collection<Pisemka> SelectPastTests(ZapsanyKurz course)
         {
             using (Database db = new Database())
             {
@@ -138,17 +140,18 @@ namespace LMSIS.Database.DaoSqls
 
                 using (SqlCommand command = db.CreateCommand(SQL_PAST_TESTS))
                 {
-                    command.Parameters.AddWithValue("@IdStudent", idStudent);
+                    command.Parameters.AddWithValue("@IdStudent", course.IdStudent);
+                    command.Parameters.AddWithValue("@IdKurz", course.IdKurz);
 
                     SqlDataReader reader = db.Select(command);
 
-                    Collection<Pisemka> pisemky = Read(reader, true);
+                    Collection<Pisemka> pisemky = Read2(reader, true);
 
                     return pisemky;
                 }
             }
         }
-        
+
         public static double? GetAvgMark(int idKurz)
         {
             using (Database db = new Database())
@@ -203,7 +206,7 @@ namespace LMSIS.Database.DaoSqls
             command.Parameters.AddWithValue("@Znamka", pisemka.Znamka);
             command.Parameters.AddWithValue("@IdZapsanyKurz", pisemka.IdZapsanyKurz);
         }
-        
+
         private static Collection<Pisemka> Read(SqlDataReader reader, bool complete)
         {
             Collection<Pisemka> pisemky = new Collection<Pisemka>();
@@ -215,7 +218,7 @@ namespace LMSIS.Database.DaoSqls
                 pisemka.IdPisemka = reader.GetInt32(++i);
                 if (!reader.IsDBNull(++i))
                 {
-                    pisemka.DatumPisemky = DateTime.Parse(reader.GetString(i));
+                    pisemka.DatumPisemky = reader.GetDateTime(i);
                 }
 
                 if (complete)
@@ -223,21 +226,44 @@ namespace LMSIS.Database.DaoSqls
                     if (!reader.IsDBNull(++i))
                     {
                         pisemka.Znamka = reader.GetByte(i);
-                    }    
+                    }
                 }
-                
+
                 pisemka.IdZapsanyKurz = reader.GetInt32(++i);
                 pisemka.ZapsanyKurz = new ZapsanyKurz();
                 pisemka.ZapsanyKurz.IdRegistrace = pisemka.IdZapsanyKurz;
-                pisemka.ZapsanyKurz.DatumZapisu = DateTime.Parse(reader.GetString(++i));
+                pisemka.ZapsanyKurz.DatumZapisu = reader.GetDateTime(++i);
                 pisemka.ZapsanyKurz.IdStudent = reader.GetInt32(++i);
                 pisemka.ZapsanyKurz.IdKurz = reader.GetInt32(++i);
-                
+
                 pisemky.Add(pisemka);
             }
-            
+
             return pisemky;
         }
+        private static Collection<Pisemka> Read2(SqlDataReader reader, bool complete)
+        {
+            Collection<Pisemka> pisemky = new Collection<Pisemka>();
 
+            while (reader.Read())
+            {
+                Pisemka pisemka = new Pisemka();
+                int i = -1;
+                pisemka.IdPisemka = reader.GetInt32(++i);
+                pisemka.DatumPisemky = reader.GetDateTime(++i);
+                pisemka.ZapsanyKurz = new ZapsanyKurz();
+                pisemka.ZapsanyKurz.Kurz = new Kurz();
+                pisemka.ZapsanyKurz.Kurz.Nazev = reader.GetString(++i);
+                if (complete && !reader.IsDBNull(++i))
+                {
+                    pisemka.Znamka = reader.GetByte(i);
+                }
+
+                pisemky.Add(pisemka);
+            }
+
+
+            return pisemky;
+        }
     }
 }
