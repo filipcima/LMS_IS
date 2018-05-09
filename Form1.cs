@@ -106,7 +106,7 @@ namespace LMS_IS_WF
             ZapsanyKurz zk = new ZapsanyKurz();
             if (courseName != null)
             {
-                zk.IdKurz = 3;
+                zk.IdKurz = KurzTable.SelectByCourseName(courseName.Trim()).IdKurz;
             }
             
             zk.IdStudent = idStudent;

@@ -33,7 +33,7 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_ACTIVE_COURSES = "SELECT k.IdKurz, k.Nazev FROM kurz k WHERE k.ukoncen IS NULL OR " +
             "getdate() < k.ukoncen";
 
-        private static string SQL_SELECT_BY_NAME = "SELECT k.IdKurz FROM kurz k WHERE nazev = @Nazev";
+        private static string SQL_SELECT_BY_NAME = "SELECT k.IdKurz, k.Nazev FROM kurz k WHERE k.nazev = @Nazev";
 
         // TODO FIX QUERIES TO MATCH READ METHOD
         /*
@@ -133,7 +133,7 @@ namespace LMSIS.Database.DaoSqls
             {
                 db.Connect();
 
-                using (SqlCommand command = db.CreateCommand(SQL_SELECT_ID))
+                using (SqlCommand command = db.CreateCommand(SQL_SELECT_BY_NAME))
                 {
                     command.Parameters.AddWithValue("@Nazev", name);
 
@@ -305,10 +305,8 @@ namespace LMSIS.Database.DaoSqls
                 Kurz kurz = new Kurz();
                 int i = -1;
                 kurz.IdKurz = reader.GetInt32(++i);
-                if (complete)
-                {
-                    kurz.Nazev = reader.GetString(++i);
-                }
+                kurz.Nazev = reader.GetString(++i);
+
                 kurzy.Add(kurz);
             }
 
