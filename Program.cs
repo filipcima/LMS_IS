@@ -10,6 +10,7 @@ namespace LMSIS
     {
         public static int StudentID = 1;
 
+
         [STAThread]
         public static void Main(string[] args)
         {

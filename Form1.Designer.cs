@@ -43,6 +43,8 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.my_courses = new System.Windows.Forms.Label();
             this.MY_COURSES_LISTVIEW = new System.Windows.Forms.ListView();
+            this.ID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.NameColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.COURSE_NAME = new System.Windows.Forms.Label();
             this.COURSE_DESC = new System.Windows.Forms.Label();
             this.AVAIL_COURSES_CB = new System.Windows.Forms.ComboBox();
@@ -52,16 +54,22 @@
             this.STATUS = new System.Windows.Forms.Label();
             this.LEARNING_MATERIALS = new System.Windows.Forms.Label();
             this.UPCOMING_TESTS_LISTVIEW = new System.Windows.Forms.ListView();
-            this.LEARNING_MATERIALS_LISTVIEW = new System.Windows.Forms.ListView();
-            this.listView4 = new System.Windows.Forms.ListView();
-            this.ID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.NameColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.CourseColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.IdCourse = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.DateColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.LEARNING_MATERIALS_LISTVIEW = new System.Windows.Forms.ListView();
             this.PAST_TESTS_LISTVIEW = new System.Windows.Forms.ListView();
-            this.NameColumn2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.MarkColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SIGN_OUT_BUTTON = new System.Windows.Forms.Button();
+            this.AVERAGE_MARK = new System.Windows.Forms.Label();
+            this.DATE_OF_SIGN = new System.Windows.Forms.Label();
+            this.COMPLETED = new System.Windows.Forms.Label();
+            this.IdPisemka = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.IDMaterial = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.NameCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.TextCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.AuthorCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.switchToTeacherViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,7 +78,8 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.studentToolStripMenuItem,
             this.courseToolStripMenuItem,
-            this.helpToolStripMenuItem});
+            this.helpToolStripMenuItem,
+            this.switchToTeacherViewToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(967, 24);
@@ -178,6 +187,16 @@
             this.MY_COURSES_LISTVIEW.View = System.Windows.Forms.View.Details;
             this.MY_COURSES_LISTVIEW.SelectedIndexChanged += new System.EventHandler(this.MY_COURSES_LISTVIEW_SelectedIndexChanged);
             // 
+            // ID
+            // 
+            this.ID.Text = "ID";
+            this.ID.Width = 34;
+            // 
+            // NameColumn
+            // 
+            this.NameColumn.Text = "Name";
+            this.NameColumn.Width = 174;
+            // 
             // COURSE_NAME
             // 
             this.COURSE_NAME.AutoSize = true;
@@ -200,15 +219,16 @@
             // 
             // AVAIL_COURSES_CB
             // 
+            this.AVAIL_COURSES_CB.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.AVAIL_COURSES_CB.FormattingEnabled = true;
-            this.AVAIL_COURSES_CB.Location = new System.Drawing.Point(55, 465);
+            this.AVAIL_COURSES_CB.Location = new System.Drawing.Point(12, 439);
             this.AVAIL_COURSES_CB.Name = "AVAIL_COURSES_CB";
-            this.AVAIL_COURSES_CB.Size = new System.Drawing.Size(121, 21);
+            this.AVAIL_COURSES_CB.Size = new System.Drawing.Size(212, 21);
             this.AVAIL_COURSES_CB.TabIndex = 5;
             // 
             // SIGN_COURSE_BUTTON
             // 
-            this.SIGN_COURSE_BUTTON.Location = new System.Drawing.Point(79, 492);
+            this.SIGN_COURSE_BUTTON.Location = new System.Drawing.Point(42, 466);
             this.SIGN_COURSE_BUTTON.Name = "SIGN_COURSE_BUTTON";
             this.SIGN_COURSE_BUTTON.Size = new System.Drawing.Size(75, 23);
             this.SIGN_COURSE_BUTTON.TabIndex = 6;
@@ -267,7 +287,7 @@
             // UPCOMING_TESTS_LISTVIEW
             // 
             this.UPCOMING_TESTS_LISTVIEW.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.CourseColumn,
+            this.IdCourse,
             this.DateColumn});
             this.UPCOMING_TESTS_LISTVIEW.FullRowSelect = true;
             this.UPCOMING_TESTS_LISTVIEW.Location = new System.Drawing.Point(302, 171);
@@ -277,48 +297,34 @@
             this.UPCOMING_TESTS_LISTVIEW.UseCompatibleStateImageBehavior = false;
             this.UPCOMING_TESTS_LISTVIEW.View = System.Windows.Forms.View.Details;
             // 
+            // IdCourse
+            // 
+            this.IdCourse.Text = "ID";
+            this.IdCourse.Width = 30;
+            // 
+            // DateColumn
+            // 
+            this.DateColumn.Text = "Date";
+            this.DateColumn.Width = 145;
+            // 
             // LEARNING_MATERIALS_LISTVIEW
             // 
+            this.LEARNING_MATERIALS_LISTVIEW.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.IDMaterial,
+            this.NameCol,
+            this.TextCol,
+            this.AuthorCol});
             this.LEARNING_MATERIALS_LISTVIEW.Location = new System.Drawing.Point(276, 355);
             this.LEARNING_MATERIALS_LISTVIEW.Name = "LEARNING_MATERIALS_LISTVIEW";
             this.LEARNING_MATERIALS_LISTVIEW.Size = new System.Drawing.Size(634, 160);
             this.LEARNING_MATERIALS_LISTVIEW.TabIndex = 15;
             this.LEARNING_MATERIALS_LISTVIEW.UseCompatibleStateImageBehavior = false;
-            // 
-            // listView4
-            // 
-            this.listView4.FullRowSelect = true;
-            this.listView4.Location = new System.Drawing.Point(729, 171);
-            this.listView4.Name = "listView4";
-            this.listView4.Size = new System.Drawing.Size(181, 113);
-            this.listView4.TabIndex = 17;
-            this.listView4.UseCompatibleStateImageBehavior = false;
-            this.listView4.View = System.Windows.Forms.View.List;
-            // 
-            // ID
-            // 
-            this.ID.Text = "ID";
-            this.ID.Width = 34;
-            // 
-            // NameColumn
-            // 
-            this.NameColumn.Text = "Name";
-            this.NameColumn.Width = 174;
-            // 
-            // CourseColumn
-            // 
-            this.CourseColumn.Text = "Course";
-            this.CourseColumn.Width = 107;
-            // 
-            // DateColumn
-            // 
-            this.DateColumn.Text = "Date";
-            this.DateColumn.Width = 70;
+            this.LEARNING_MATERIALS_LISTVIEW.View = System.Windows.Forms.View.Details;
             // 
             // PAST_TESTS_LISTVIEW
             // 
             this.PAST_TESTS_LISTVIEW.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.NameColumn2,
+            this.IdPisemka,
             this.columnHeader2,
             this.MarkColumn});
             this.PAST_TESTS_LISTVIEW.FullRowSelect = true;
@@ -329,28 +335,95 @@
             this.PAST_TESTS_LISTVIEW.UseCompatibleStateImageBehavior = false;
             this.PAST_TESTS_LISTVIEW.View = System.Windows.Forms.View.Details;
             // 
-            // NameColumn2
-            // 
-            this.NameColumn2.Text = "Course";
-            this.NameColumn2.Width = 76;
-            // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "Date";
-            this.columnHeader2.Width = 62;
+            this.columnHeader2.Width = 110;
             // 
             // MarkColumn
             // 
             this.MarkColumn.Text = "Mark";
             this.MarkColumn.Width = 37;
             // 
+            // SIGN_OUT_BUTTON
+            // 
+            this.SIGN_OUT_BUTTON.Location = new System.Drawing.Point(123, 466);
+            this.SIGN_OUT_BUTTON.Name = "SIGN_OUT_BUTTON";
+            this.SIGN_OUT_BUTTON.Size = new System.Drawing.Size(75, 23);
+            this.SIGN_OUT_BUTTON.TabIndex = 19;
+            this.SIGN_OUT_BUTTON.Text = "Sign out";
+            this.SIGN_OUT_BUTTON.UseVisualStyleBackColor = true;
+            this.SIGN_OUT_BUTTON.Click += new System.EventHandler(this.SIGN_OUT_BUTTON_Click);
+            // 
+            // AVERAGE_MARK
+            // 
+            this.AVERAGE_MARK.AutoSize = true;
+            this.AVERAGE_MARK.Location = new System.Drawing.Point(726, 180);
+            this.AVERAGE_MARK.Name = "AVERAGE_MARK";
+            this.AVERAGE_MARK.Size = new System.Drawing.Size(76, 13);
+            this.AVERAGE_MARK.TabIndex = 20;
+            this.AVERAGE_MARK.Text = "Avg. mark: 1.0";
+            // 
+            // DATE_OF_SIGN
+            // 
+            this.DATE_OF_SIGN.AutoSize = true;
+            this.DATE_OF_SIGN.Location = new System.Drawing.Point(726, 195);
+            this.DATE_OF_SIGN.Name = "DATE_OF_SIGN";
+            this.DATE_OF_SIGN.Size = new System.Drawing.Size(124, 13);
+            this.DATE_OF_SIGN.TabIndex = 21;
+            this.DATE_OF_SIGN.Text = "Date of sign: 21. 3. 2018";
+            // 
+            // COMPLETED
+            // 
+            this.COMPLETED.AutoSize = true;
+            this.COMPLETED.Location = new System.Drawing.Point(726, 211);
+            this.COMPLETED.Name = "COMPLETED";
+            this.COMPLETED.Size = new System.Drawing.Size(79, 13);
+            this.COMPLETED.TabIndex = 22;
+            this.COMPLETED.Text = "Completed: yes";
+            // 
+            // IdPisemka
+            // 
+            this.IdPisemka.Text = "ID";
+            this.IdPisemka.Width = 28;
+            // 
+            // IDMaterial
+            // 
+            this.IDMaterial.Text = "ID";
+            this.IDMaterial.Width = 33;
+            // 
+            // NameCol
+            // 
+            this.NameCol.Text = "Name";
+            this.NameCol.Width = 134;
+            // 
+            // TextCol
+            // 
+            this.TextCol.Text = "Text";
+            this.TextCol.Width = 377;
+            // 
+            // AuthorCol
+            // 
+            this.AuthorCol.Text = "Author";
+            this.AuthorCol.Width = 82;
+            // 
+            // switchToTeacherViewToolStripMenuItem
+            // 
+            this.switchToTeacherViewToolStripMenuItem.Name = "switchToTeacherViewToolStripMenuItem";
+            this.switchToTeacherViewToolStripMenuItem.Size = new System.Drawing.Size(137, 20);
+            this.switchToTeacherViewToolStripMenuItem.Text = "Switch to teacher view";
+            this.switchToTeacherViewToolStripMenuItem.Click += new System.EventHandler(this.switchToTeacherViewToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(967, 560);
+            this.Controls.Add(this.COMPLETED);
+            this.Controls.Add(this.DATE_OF_SIGN);
+            this.Controls.Add(this.AVERAGE_MARK);
+            this.Controls.Add(this.SIGN_OUT_BUTTON);
             this.Controls.Add(this.PAST_TESTS_LISTVIEW);
-            this.Controls.Add(this.listView4);
             this.Controls.Add(this.LEARNING_MATERIALS_LISTVIEW);
             this.Controls.Add(this.UPCOMING_TESTS_LISTVIEW);
             this.Controls.Add(this.LEARNING_MATERIALS);
@@ -401,14 +474,22 @@
         private System.Windows.Forms.Label LEARNING_MATERIALS;
         private System.Windows.Forms.ListView UPCOMING_TESTS_LISTVIEW;
         private System.Windows.Forms.ListView LEARNING_MATERIALS_LISTVIEW;
-        private System.Windows.Forms.ListView listView4;
         private System.Windows.Forms.ColumnHeader ID;
         private System.Windows.Forms.ColumnHeader NameColumn;
-        private System.Windows.Forms.ColumnHeader CourseColumn;
+        private System.Windows.Forms.ColumnHeader IdCourse;
         private System.Windows.Forms.ColumnHeader DateColumn;
         private System.Windows.Forms.ListView PAST_TESTS_LISTVIEW;
-        private System.Windows.Forms.ColumnHeader NameColumn2;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader MarkColumn;
+        private System.Windows.Forms.Button SIGN_OUT_BUTTON;
+        private System.Windows.Forms.Label AVERAGE_MARK;
+        private System.Windows.Forms.Label DATE_OF_SIGN;
+        private System.Windows.Forms.Label COMPLETED;
+        private System.Windows.Forms.ColumnHeader IdPisemka;
+        private System.Windows.Forms.ColumnHeader IDMaterial;
+        private System.Windows.Forms.ColumnHeader NameCol;
+        private System.Windows.Forms.ColumnHeader TextCol;
+        private System.Windows.Forms.ColumnHeader AuthorCol;
+        private System.Windows.Forms.ToolStripMenuItem switchToTeacherViewToolStripMenuItem;
     }
 }

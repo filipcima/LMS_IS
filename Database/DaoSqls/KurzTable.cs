@@ -33,7 +33,14 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_ACTIVE_COURSES = "SELECT k.IdKurz, k.Nazev FROM kurz k WHERE k.ukoncen IS NULL OR " +
             "getdate() < k.ukoncen";
 
-        private static string SQL_SELECT_BY_NAME = "SELECT k.IdKurz, k.Nazev FROM kurz k WHERE k.nazev = @Nazev";
+        private static string SQL_SELECT_BY_NAME = "SELECT k.IdKurz, k.Nazev, k.Kapacita FROM kurz k WHERE k.nazev = @Nazev";
+
+        private static string SQL_SELECT_BY_TEACHER = "SELECT k.IdKurz, k.Nazev FROM kurz k WHERE k.vyucujici_idvyucujici" +
+            " = @IdVyucujici";
+
+        private static string SQL_COURSES_BY_STUDENT_ONGOING = "SELECT k.IdKurz, k.Nazev FROM Kurz k WHERE k.IdKurz NOT IN " +
+            "(SELECT k.IdKurz FROM Kurz k JOIN ZapsanyKurz zk ON zk.Kurz_IdKurz = k.IdKurz WHERE zk.student_IdStudent " +
+            "= @IdStudent AND (getdate() < zk.DatumUkonceni OR zk.DatumUkonceni IS NULL))";
 
         // TODO FIX QUERIES TO MATCH READ METHOD
         /*
@@ -65,8 +72,8 @@ namespace LMSIS.Database.DaoSqls
 
             command.Parameters.AddWithValue("@p_nazev", kurz.Nazev);
             command.Parameters.AddWithValue("@p_popis", kurz.Popis);
-            command.Parameters.AddWithValue("@p_vyucujici_id", kurz.Vyucujici.IdVyucujici);
-            command.Parameters.AddWithValue("@p_obor_id", kurz.Obor.IdObor);
+            command.Parameters.AddWithValue("@p_vyucujici_id", kurz.IdVyucujici);
+            command.Parameters.AddWithValue("@p_obor_id", kurz.IdObor);
             command.Parameters.AddWithValue("@p_kapacita", kurz.Kapacita);
 
 
@@ -139,7 +146,7 @@ namespace LMSIS.Database.DaoSqls
 
                     SqlDataReader reader = db.Select(command);
 
-                    Collection<Kurz> kurzy = Read2(reader, false);
+                    Collection<Kurz> kurzy = Read2(reader, true);
 
                     if (kurzy.Count == 1)
                     {
@@ -148,6 +155,24 @@ namespace LMSIS.Database.DaoSqls
                 }
             }
             return null;
+        }
+        public static Collection<Kurz> SelectByTeacherId(int idVyucujici)
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_SELECT_BY_TEACHER))
+                {
+                    command.Parameters.AddWithValue("@IdVyucujici", idVyucujici);
+
+                    SqlDataReader reader = db.Select(command);
+
+                    Collection<Kurz> kurzy = Read2(reader, false);
+
+                    return kurzy;
+                }
+            }
         }
 
         public static Collection<Kurz> SelectNonFullCourses()
@@ -184,7 +209,7 @@ namespace LMSIS.Database.DaoSqls
         }
 
 
-        public static int? GetStudentsCount(int idKurz)
+        public static int GetStudentsCount(int idKurz)
         {
             using (Database db = new Database())
             {
@@ -201,9 +226,40 @@ namespace LMSIS.Database.DaoSqls
                     }
                 }
             }
-
-            return null;
+            return 0;
         }
+
+        public static Collection<Kurz> SelectByStudentAndOngoing(string idStudent)
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_COURSES_BY_STUDENT_ONGOING))
+                {
+                    command.Parameters.AddWithValue("@IdStudent", idStudent);
+
+                    SqlDataReader reader = db.Select(command);
+
+                    Collection<Kurz> kurzy = new Collection<Kurz>();
+
+
+                    while (reader.Read())
+                    {
+                        Kurz k = new Kurz();
+
+                        int i = -1;
+
+                        k.IdKurz = reader.GetInt32(++i);
+                        k.Nazev = reader.GetString(++i);
+
+                        kurzy.Add(k);
+                    }
+                    return kurzy;
+                }
+            }
+        }
+
         /*
         public static Collection<Kurz> SelectRunningCourses()
         {
@@ -306,7 +362,11 @@ namespace LMSIS.Database.DaoSqls
                 int i = -1;
                 kurz.IdKurz = reader.GetInt32(++i);
                 kurz.Nazev = reader.GetString(++i);
-
+                if (complete)
+                {
+                    kurz.Kapacita = reader.GetByte(++i);
+                }
+                
                 kurzy.Add(kurz);
             }
 

@@ -1,13 +1,7 @@
 ﻿using LMSIS.Database.DaoSqls;
 using LMSIS.Database.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace LMS_IS_WF
@@ -21,20 +15,20 @@ namespace LMS_IS_WF
             InitializeComponent();
         }
 
+        public Form1(int idStudent)
+        {
+            this.idStudent = idStudent;
+            InitializeComponent();
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
-            int studentID = 4;
-            InitView(studentID);
+            InitView(idStudent);
         }
 
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void InitView(int studentID)
@@ -43,22 +37,25 @@ namespace LMS_IS_WF
             AVAIL_COURSES_CB.Items.Clear();
             Student s = StudentTable.SelectOne(studentID);
             Collection<ZapsanyKurz> signedCourses = ZapsanyKurzTable.SelectCoursesByIdStudent(studentID);
-            ZapsanyKurz firstCourse = signedCourses[0];
-            Collection<Kurz> activeCourses = KurzTable.SelectActiveCourses();
-            foreach (var c in signedCourses)
-            {
-                ListViewItem i = new ListViewItem(c.IdRegistrace.ToString());
-                i.SubItems.Add(c.Kurz.Nazev);
-                MY_COURSES_LISTVIEW.Items.Add(i);
-            }
+            Collection<Kurz> activeCourses = KurzTable.SelectByStudentAndOngoing(studentID.ToString());
 
             foreach (var c in activeCourses)
             {
                 AVAIL_COURSES_CB.Items.Add(c.Nazev);
             }
 
+            if (signedCourses.Count > 0)
+            {
+                ZapsanyKurz firstCourse = signedCourses[0];
 
-            InitCourse(firstCourse);
+                foreach (var c in signedCourses)
+                {
+                    ListViewItem i = new ListViewItem(c.IdRegistrace.ToString());
+                    i.SubItems.Add(c.Kurz.Nazev);
+                    MY_COURSES_LISTVIEW.Items.Add(i);
+                }
+                InitCourse(firstCourse);
+            }
         }
 
         private void InitCourse(ZapsanyKurz course)
@@ -72,19 +69,69 @@ namespace LMS_IS_WF
             UPCOMING_TESTS_LISTVIEW.Items.Clear();
             PAST_TESTS_LISTVIEW.Items.Clear();
 
-            foreach (var t in upcomingTests)
+            InitTests(upcomingTests, UPCOMING_TESTS_LISTVIEW, false);
+            InitTests(pastTests, PAST_TESTS_LISTVIEW, true);
+            InitStatus(course);
+            InitMaterials(course);
+        }
+
+        private void InitTests(Collection<Pisemka> tests, ListView lst, bool includeMark)
+        {
+            foreach (var t in tests)
             {
                 ListViewItem i = new ListViewItem(t.IdPisemka.ToString());
-                i.SubItems.Add(t.ZapsanyKurz.Kurz.Nazev);
+                i.SubItems.Add(t.DatumPisemky.ToShortDateString());
+                if (includeMark)
+                {
+                    i.SubItems.Add(t.Znamka.ToString());
+                }
+
                 UPCOMING_TESTS_LISTVIEW.Items.Add(i);
             }
+        }
 
-            foreach (var t in pastTests)
+        private void InitStatus(ZapsanyKurz zk)
+        {
+            double? avg = ZapsanyKurzTable.GetAvgMark(zk.IdRegistrace);
+            if (avg != null)
             {
-                ListViewItem i = new ListViewItem(t.ZapsanyKurz.Kurz.Nazev);
-                i.SubItems.Add(t.DatumPisemky.ToString());
-                i.SubItems.Add(t.Znamka.ToString());
-                PAST_TESTS_LISTVIEW.Items.Add(i);
+                AVERAGE_MARK.Text = "Average mark: " + avg;
+            }
+            else
+            {
+                AVERAGE_MARK.Text = "Average mark: no marks yet";
+            }
+            string dateOfSign = zk.DatumZapisu.ToShortDateString();
+            bool? done = zk.Splneno;
+
+            DATE_OF_SIGN.Text = "Signed: " + dateOfSign;
+            bool done2 = done ?? false;
+            if (done2)
+            {
+                COMPLETED.Text = "Done: YES";
+            }
+            else
+            {
+                COMPLETED.Text = "DONE: NO";
+            }
+        }    
+        
+        private void InitMaterials(ZapsanyKurz course)
+        {
+            LEARNING_MATERIALS_LISTVIEW.Items.Clear();
+
+            Collection<VyukovyMaterial> materials = VyukovyMaterialTable.SelectByCourse(course.IdKurz);
+            if (materials != null)
+            {
+                foreach (var material in materials)
+                {
+                    ListViewItem i = new ListViewItem(material.IdVyukovyMaterial.ToString());
+                    i.SubItems.Add(material.Nazev);
+                    i.SubItems.Add(material.Text);
+                    i.SubItems.Add(material.Autor.Prijmeni + ", " + material.Autor.Jmeno);
+
+                    LEARNING_MATERIALS_LISTVIEW.Items.Add(i);
+                }
             }
         }
 
@@ -104,14 +151,47 @@ namespace LMS_IS_WF
             string courseName = AVAIL_COURSES_CB.Text;
             
             ZapsanyKurz zk = new ZapsanyKurz();
+            int studentsCount = 0, capacity = 0;
             if (courseName != null)
             {
-                zk.IdKurz = KurzTable.SelectByCourseName(courseName.Trim()).IdKurz;
+                Kurz k = KurzTable.SelectByCourseName(courseName);
+                zk.IdKurz = k.IdKurz;
+
+                studentsCount = KurzTable.GetStudentsCount(k.IdKurz);
+                capacity = k.Kapacita;
+
+                zk.IdStudent = idStudent;
+                ZapsanyKurzTable.Insert(zk);
+                if (studentsCount < capacity)
+                {
+                    InitView(idStudent);
+                }
+                else
+                {
+                    MessageBox.Show("Jiz neni misto. Budete zapsan do fronty na tento kurz. " +
+                        "Jakmile se otevre kurz, budete zapsan do kurzu.");
+                }
             }
-            
-            zk.IdStudent = idStudent;
-            ZapsanyKurzTable.Insert(zk);
-            InitView(idStudent);
+        }
+
+        private void SIGN_OUT_BUTTON_Click(object sender, EventArgs e)
+        {
+            if (MY_COURSES_LISTVIEW.SelectedItems.Count == 1)
+            {
+                string s = MY_COURSES_LISTVIEW.SelectedItems[0].Text;
+                COURSE_NAME.Text = s;
+                
+                ZapsanyKurzTable.Delete(Convert.ToInt32(s));
+                InitView(idStudent);
+            }
+        }
+
+        private void switchToTeacherViewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            // bad solution
+            // TODO: find out a better one
+            new Form2(5).Show();
         }
     }
 }

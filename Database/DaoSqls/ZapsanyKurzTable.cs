@@ -36,6 +36,9 @@ namespace LMSIS.Database.DaoSqls
             "k.Kapacita FROM ZapsanyKurz z JOIN Kurz k on k.IdKurz = z.Kurz_IdKurz JOIN Student s ON s.IdStudent = " +
             "z.Student_IdStudent WHERE k.Vyucujici_IdVyucujici=@IdVyucujici";
 
+        private static string SQL_AVG_MARK = "SELECT avg(p.znamka) FROM pisemka p JOIN zapsanykurz z ON " +
+                                            "p.zapsanykurz_idregistrace = z.idregistrace WHERE z.IdRegistrace = @IdRegistrace";
+
         public static int Insert(ZapsanyKurz zk, Database pDb = null)
         {
             Database db;
@@ -149,6 +152,33 @@ namespace LMSIS.Database.DaoSqls
                     return kurzy;
                 }
             }
+        }
+
+        public static double? GetAvgMark(int idRegistrace)
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_AVG_MARK))
+                {
+                    command.Parameters.AddWithValue("@IdRegistrace", idRegistrace);
+
+                    SqlDataReader reader = db.Select(command);
+                    while (reader.Read())
+                    {
+                        if(!reader.IsDBNull(0))
+                        {
+                            return reader.GetInt32(0);
+                        } else
+                        {
+                            return null;
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         private static void PrepareCommand(SqlCommand command, ZapsanyKurz zapsanyKurz)
