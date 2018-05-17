@@ -30,29 +30,31 @@ namespace LMSIS.Database.DaoSqls
                                                      "k.Obor_IdObor FROM kurz k WHERE (SELECT COUNT(*) FROM zapsanykurz " +
                                                      "WHERE kurz_idkurz = k.idkurz) < k.kapacita";
 
-        private static string SQL_ACTIVE_COURSES = "SELECT k.IdKurz, k.Nazev FROM kurz k WHERE k.ukoncen IS NULL OR " +
-            "getdate() < k.ukoncen";
+        private static string SQL_ACTIVE_COURSES = "SELECT k.IdKurz, k.Nazev, k.Obor_IdObor, o.Nazev FROM kurz k JOIN obor o " +
+            "ON o.idobor = k.obor_idobor WHERE k.ukoncen IS NULL OR getdate() < k.ukoncen";
 
-        private static string SQL_SELECT_BY_NAME = "SELECT k.IdKurz, k.Nazev, k.Kapacita FROM kurz k WHERE k.nazev = @Nazev";
+        private static string SQL_SELECT_BY_NAME = "SELECT k.IdKurz, k.Nazev, k.Kapacita, k.Obor_IdObor, o.Nazev FROM kurz k " +
+            "JOIN obor o ON o.idobor = k.obor_idobor WHERE k.nazev = @Nazev";
 
-        private static string SQL_SELECT_BY_TEACHER = "SELECT k.IdKurz, k.Nazev FROM kurz k WHERE k.vyucujici_idvyucujici" +
-            " = @IdVyucujici";
+        private static string SQL_SELECT_LAST_COURSE_BY_NAME = "SELECT TOP 1 k.IdKurz, k.Nazev, k.Kapacita, k.Obor_IdObor, " +
+            "o.Nazev FROM kurz k JOIN obor o ON o.idobor = k.obor_idobor WHERE k.nazev = @Nazev ORDER BY vytvoren DESC";
 
-        private static string SQL_COURSES_BY_STUDENT_ONGOING = "SELECT k.IdKurz, k.Nazev FROM Kurz k WHERE k.IdKurz NOT IN " +
-            "(SELECT k.IdKurz FROM Kurz k JOIN ZapsanyKurz zk ON zk.Kurz_IdKurz = k.IdKurz WHERE zk.student_IdStudent " +
-            "= @IdStudent AND (getdate() < zk.DatumUkonceni OR zk.DatumUkonceni IS NULL))";
+        private static string SQL_SELECT_BY_TEACHER = "SELECT k.IdKurz, k.Nazev, k.Obor_IdObor, o.Nazev FROM kurz k JOIN " +
+            "obor o ON o.idobor = k.obor_idobor WHERE k.vyucujici_idvyucujici = @IdVyucujici";
 
-        // TODO FIX QUERIES TO MATCH READ METHOD
-        /*
+        private static string SQL_COURSES_BY_STUDENT_ONGOING = "SELECT DISTINCT k.Nazev FROM Kurz k WHERE k.IdKurz " +
+            "NOT IN(SELECT k.IdKurz FROM Kurz k JOIN ZapsanyKurz zk ON zk.Kurz_IdKurz = k.IdKurz " +
+            "WHERE zk.student_IdStudent = @IdStudent OR k.ukoncen IS NOT NULL)";
+
         private static string SQL_RUNNING_COURSES =
-            "SELECT s. FROM Kurz k JOIN ZapsanKurz k ON k.IdKurz = z.Kurz_IdKurz JOIN Student s JOIN ZapsanyKurz z " +
-            "ON s.IdStudent = z.Student_IdStudent WHERE getdate() > z.DatumZapisu AND (getdate() < z.DatumUkonceni " +
-            "OR z.DatumUkonceni IS NULL)";
+            "SELECT k.IdKurz, k.Nazev, k.Popis, k.Kapacita, k.Vyucujici_IdVyucujici, k.Obor_IdObor FROM Kurz k JOIN ZapsanKurz " +
+            "k ON k.IdKurz = z.Kurz_IdKurz JOIN Student s JOIN ZapsanyKurz z ON s.IdStudent = z.Student_IdStudent " +
+            "WHERE getdate() > z.DatumZapisu AND (getdate() < z.DatumUkonceni OR z.DatumUkonceni IS NULL)";
 
         private static string SQL_STOPPED_COURSES =
-            "SELECT z.IdRegistrace, z.DatumZapisu, z.DatumUkonceni, z.Splneno, z.Student_IdStudent, z.Kurz_IdKurz FROM " +
-            "ZapsanyKurz z WHERE getdate() > DatumZapisu AND (getdate() > DatumUkonceni OR DatumUkonceni IS NOT NULL)";
-        */
+            "SELECT k.IdKurz, k.Nazev, k.Popis, k.Kapacita, k.Vyucujici_IdVyucujici, k.Obor_IdObor FROM ZapsanyKurz z " +
+            "WHERE getdate() > DatumZapisu AND (getdate() > DatumUkonceni OR DatumUkonceni IS NOT NULL)";
+        
 
         public static int Insert(Kurz kurz, Database pDb = null)
         {
@@ -75,7 +77,6 @@ namespace LMSIS.Database.DaoSqls
             command.Parameters.AddWithValue("@p_vyucujici_id", kurz.IdVyucujici);
             command.Parameters.AddWithValue("@p_obor_id", kurz.IdObor);
             command.Parameters.AddWithValue("@p_kapacita", kurz.Kapacita);
-
 
             int ret = db.ExecuteNonQuery(command);
 
@@ -156,6 +157,30 @@ namespace LMSIS.Database.DaoSqls
             }
             return null;
         }
+
+        public static Kurz SelectLastCourseByName(string name)
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_SELECT_LAST_COURSE_BY_NAME))
+                {
+                    command.Parameters.AddWithValue("@Nazev", name);
+
+                    SqlDataReader reader = db.Select(command);
+
+                    Collection<Kurz> kurzy = Read2(reader, true);
+
+                    if (kurzy.Count == 1)
+                    {
+                        return kurzy[0];
+                    }
+                }
+            }
+            return null;
+        }
+
         public static Collection<Kurz> SelectByTeacherId(int idVyucujici)
         {
             using (Database db = new Database())
@@ -243,14 +268,12 @@ namespace LMSIS.Database.DaoSqls
 
                     Collection<Kurz> kurzy = new Collection<Kurz>();
 
-
                     while (reader.Read())
                     {
                         Kurz k = new Kurz();
 
                         int i = -1;
 
-                        k.IdKurz = reader.GetInt32(++i);
                         k.Nazev = reader.GetString(++i);
 
                         kurzy.Add(k);
@@ -260,7 +283,6 @@ namespace LMSIS.Database.DaoSqls
             }
         }
 
-        /*
         public static Collection<Kurz> SelectRunningCourses()
         {
             using (Database db = new Database())
@@ -292,9 +314,6 @@ namespace LMSIS.Database.DaoSqls
                 }
             }
         }
-        */
-
-
 
         private static void PrepareCommand(SqlCommand command, Kurz kurz)
         {
@@ -352,6 +371,7 @@ namespace LMSIS.Database.DaoSqls
 
             return kurzy;
         }
+
         private static Collection<Kurz> Read2(SqlDataReader reader, bool complete)
         {
             Collection<Kurz> kurzy = new Collection<Kurz>();
@@ -366,6 +386,9 @@ namespace LMSIS.Database.DaoSqls
                 {
                     kurz.Kapacita = reader.GetByte(++i);
                 }
+                kurz.IdObor = reader.GetInt32(++i);
+                kurz.Obor = new Obor();
+                kurz.Obor.Nazev = reader.GetString(++i);
                 
                 kurzy.Add(kurz);
             }

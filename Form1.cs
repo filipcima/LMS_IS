@@ -1,5 +1,6 @@
 ﻿using LMSIS.Database.DaoSqls;
 using LMSIS.Database.Models;
+using LMSIS;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
@@ -8,22 +9,20 @@ namespace LMS_IS_WF
 {
     public partial class Form1 : Form
     {
-        private int idStudent;
+        private int idStudent, idTeacher;
         public Form1()
         {
-            this.idStudent = 4;
+            this.idStudent = Program.studentID;
+            this.idTeacher = Program.teacherID;
             InitializeComponent();
+            InitView();
         }
 
         public Form1(int idStudent)
         {
             this.idStudent = idStudent;
             InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            InitView(idStudent);
+            InitView();
         }
 
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -31,13 +30,13 @@ namespace LMS_IS_WF
             Application.Exit();
         }
 
-        private void InitView(int studentID)
+        private void InitView()
         {
             MY_COURSES_LISTVIEW.Items.Clear();
             AVAIL_COURSES_CB.Items.Clear();
-            Student s = StudentTable.SelectOne(studentID);
-            Collection<ZapsanyKurz> signedCourses = ZapsanyKurzTable.SelectCoursesByIdStudent(studentID);
-            Collection<Kurz> activeCourses = KurzTable.SelectByStudentAndOngoing(studentID.ToString());
+            Student s = StudentTable.SelectOne(idStudent);
+            Collection<ZapsanyKurz> signedCourses = ZapsanyKurzTable.SelectCoursesByIdStudent(idStudent);
+            Collection<Kurz> activeCourses = KurzTable.SelectByStudentAndOngoing(idStudent.ToString());
 
             foreach (var c in activeCourses)
             {
@@ -69,25 +68,25 @@ namespace LMS_IS_WF
             UPCOMING_TESTS_LISTVIEW.Items.Clear();
             PAST_TESTS_LISTVIEW.Items.Clear();
 
-            InitTests(upcomingTests, UPCOMING_TESTS_LISTVIEW, false);
-            InitTests(pastTests, PAST_TESTS_LISTVIEW, true);
-            InitStatus(course);
-            InitMaterials(course);
-        }
-
-        private void InitTests(Collection<Pisemka> tests, ListView lst, bool includeMark)
-        {
-            foreach (var t in tests)
+            foreach (var t in pastTests)
             {
                 ListViewItem i = new ListViewItem(t.IdPisemka.ToString());
                 i.SubItems.Add(t.DatumPisemky.ToShortDateString());
-                if (includeMark)
-                {
-                    i.SubItems.Add(t.Znamka.ToString());
-                }
+                i.SubItems.Add(t.Znamka.ToString());
+                
+                PAST_TESTS_LISTVIEW.Items.Add(i);
+            }
+
+            foreach (var t in upcomingTests)
+            {
+                ListViewItem i = new ListViewItem(t.IdPisemka.ToString());
+                i.SubItems.Add(t.DatumPisemky.ToShortDateString());
 
                 UPCOMING_TESTS_LISTVIEW.Items.Add(i);
             }
+
+            InitStatus(course);
+            InitMaterials(course);
         }
 
         private void InitStatus(ZapsanyKurz zk)
@@ -150,13 +149,18 @@ namespace LMS_IS_WF
         {
             string courseName = AVAIL_COURSES_CB.Text;
             
-            ZapsanyKurz zk = new ZapsanyKurz();
             int studentsCount = 0, capacity = 0;
-            if (courseName != null)
+            if (courseName != null && courseName != "")
             {
-                Kurz k = KurzTable.SelectByCourseName(courseName);
-                zk.IdKurz = k.IdKurz;
+                ZapsanyKurz zk = new ZapsanyKurz();
 
+                Kurz k = KurzTable.SelectByCourseName(courseName);
+                if (k == null)
+                {
+                    k = KurzTable.SelectLastCourseByName(courseName);
+                }
+
+                zk.IdKurz = k.IdKurz;
                 studentsCount = KurzTable.GetStudentsCount(k.IdKurz);
                 capacity = k.Kapacita;
 
@@ -164,13 +168,16 @@ namespace LMS_IS_WF
                 ZapsanyKurzTable.Insert(zk);
                 if (studentsCount < capacity)
                 {
-                    InitView(idStudent);
+                    InitView();
                 }
                 else
                 {
                     MessageBox.Show("Jiz neni misto. Budete zapsan do fronty na tento kurz. " +
                         "Jakmile se otevre kurz, budete zapsan do kurzu.");
                 }
+            } else
+            {
+                MessageBox.Show("Vyberte kurz z combo boxu!");
             }
         }
 
@@ -182,16 +189,14 @@ namespace LMS_IS_WF
                 COURSE_NAME.Text = s;
                 
                 ZapsanyKurzTable.Delete(Convert.ToInt32(s));
-                InitView(idStudent);
+                InitView();
             }
         }
 
         private void switchToTeacherViewToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Hide();
-            // bad solution
-            // TODO: find out a better one
-            new Form2(5).Show();
+            new Form2().Show();
         }
     }
 }

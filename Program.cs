@@ -6,9 +6,10 @@ using LMSIS.Database.Models;
 
 namespace LMSIS
 {
-    internal class Program
+    public class Program
     {
-        public static int StudentID = 1;
+        public static int studentID = 3;
+        public static int teacherID = 5;
 
 
         [STAThread]

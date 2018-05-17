@@ -1,13 +1,8 @@
 ﻿using LMSIS.Database.DaoSqls;
 using LMSIS.Database.Models;
 using System;
-using System.Collections.Generic;
+using LMSIS;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace LMS_IS_WF
@@ -15,19 +10,22 @@ namespace LMS_IS_WF
     public partial class Form2 : Form
     {
         private int idTeacher;
+
+        public Form2()
+        {
+            this.idTeacher = Program.teacherID;
+            InitializeComponent();
+            InitView();
+        }
+
         public Form2(int idTeacher)
         {
             this.idTeacher = idTeacher;
             InitializeComponent();
-            InitView(idTeacher);
+            InitView();
         }
 
-        private void Form2_Load(object sender, EventArgs e)
-        {
-            InitView(idTeacher);
-        }
-
-        private void InitView(int teacherID)
+        private void InitView()
         {
             InitCourses();
             InitSpecialization();
@@ -70,8 +68,6 @@ namespace LMS_IS_WF
         private void switchToStudentFormToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Hide();
-            // bad solution
-            // TODO: find out a better one
             new Form1().Show();
         }
 
@@ -79,14 +75,31 @@ namespace LMS_IS_WF
         {
             Kurz k = new Kurz();
             k.IdVyucujici = this.idTeacher;
-            k.IdObor = OborTable.SelectOneByName(SPECIALIZATION_CB.Text).IdObor;
-            k.Kapacita = Convert.ToInt32(CAPACITY_VALUE.Text);
-            k.Vytvoren = DateTime.Parse(START_DATE_DP.Text);
-            k.Nazev = NAME_VALUE.Text;
-            k.Popis = DETAIL_VALUE.Text;
 
-            KurzTable.Insert(k);
-            InitCourses();
+            if (int.TryParse(CAPACITY_VALUE.Text, out int n) && 
+                NAME_VALUE.Text.Length > 1 && 
+                DETAIL_VALUE.Text.Length > 0 && 
+                SPECIALIZATION_CB.Text != "")
+            {
+                k.Kapacita = Convert.ToInt32(CAPACITY_VALUE.Text);
+                k.IdObor = OborTable.SelectOneByName(SPECIALIZATION_CB.Text).IdObor;
+                k.Nazev = NAME_VALUE.Text;
+                k.Popis = DETAIL_VALUE.Text;
+                k.Vytvoren = DateTime.Parse(START_DATE_DP.Text);
+
+                KurzTable.Insert(k);
+
+                SPECIALIZATION_CB.Text = "";
+                NAME_VALUE.Text = "";
+                CAPACITY_VALUE.Text = "";
+                DETAIL_VALUE.Text = "";
+
+                InitCourses();
+            }
+            else
+            {
+                MessageBox.Show("Vypln vsechny udaje spravne!");
+            }
         }
 
         private void REFRESH_BUTTON_Click(object sender, EventArgs e)
@@ -96,6 +109,12 @@ namespace LMS_IS_WF
                 int idCourse = Convert.ToInt32(MY_COURSES_LISTVIEW.SelectedItems[0].Text);
                 InitWaitingQueue(idCourse);
             }
+        }
+
+        private void CANCEL_BUTTON_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            new Form3().Show();
         }
     }
 }

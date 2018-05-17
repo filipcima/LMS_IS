@@ -59,9 +59,9 @@
             this.CANCEL_BUTTON = new System.Windows.Forms.Button();
             this.WAITING_QUEUE_LABEL = new System.Windows.Forms.Label();
             this.WAITING_QUEUE_LW = new System.Windows.Forms.ListView();
-            this.REFRESH_BUTTON = new System.Windows.Forms.Button();
             this.loginCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.nameCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.REFRESH_BUTTON = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -285,9 +285,9 @@
             // 
             // CREATE_BUTTON
             // 
-            this.CREATE_BUTTON.Location = new System.Drawing.Point(296, 449);
+            this.CREATE_BUTTON.Location = new System.Drawing.Point(265, 449);
             this.CREATE_BUTTON.Name = "CREATE_BUTTON";
-            this.CREATE_BUTTON.Size = new System.Drawing.Size(75, 23);
+            this.CREATE_BUTTON.Size = new System.Drawing.Size(106, 23);
             this.CREATE_BUTTON.TabIndex = 36;
             this.CREATE_BUTTON.Text = "Create";
             this.CREATE_BUTTON.UseVisualStyleBackColor = true;
@@ -297,10 +297,11 @@
             // 
             this.CANCEL_BUTTON.Location = new System.Drawing.Point(377, 449);
             this.CANCEL_BUTTON.Name = "CANCEL_BUTTON";
-            this.CANCEL_BUTTON.Size = new System.Drawing.Size(75, 23);
+            this.CANCEL_BUTTON.Size = new System.Drawing.Size(111, 23);
             this.CANCEL_BUTTON.TabIndex = 37;
             this.CANCEL_BUTTON.Text = "Cancel";
             this.CANCEL_BUTTON.UseVisualStyleBackColor = true;
+            this.CANCEL_BUTTON.Click += new System.EventHandler(this.CANCEL_BUTTON_Click);
             // 
             // WAITING_QUEUE_LABEL
             // 
@@ -325,16 +326,6 @@
             this.WAITING_QUEUE_LW.UseCompatibleStateImageBehavior = false;
             this.WAITING_QUEUE_LW.View = System.Windows.Forms.View.Details;
             // 
-            // REFRESH_BUTTON
-            // 
-            this.REFRESH_BUTTON.Location = new System.Drawing.Point(773, 449);
-            this.REFRESH_BUTTON.Name = "REFRESH_BUTTON";
-            this.REFRESH_BUTTON.Size = new System.Drawing.Size(132, 23);
-            this.REFRESH_BUTTON.TabIndex = 40;
-            this.REFRESH_BUTTON.Text = "Refresh waiting queue";
-            this.REFRESH_BUTTON.UseVisualStyleBackColor = true;
-            this.REFRESH_BUTTON.Click += new System.EventHandler(this.REFRESH_BUTTON_Click);
-            // 
             // loginCol
             // 
             this.loginCol.Text = "Login";
@@ -344,6 +335,16 @@
             // 
             this.nameCol.Text = "Name";
             this.nameCol.Width = 229;
+            // 
+            // REFRESH_BUTTON
+            // 
+            this.REFRESH_BUTTON.Location = new System.Drawing.Point(773, 449);
+            this.REFRESH_BUTTON.Name = "REFRESH_BUTTON";
+            this.REFRESH_BUTTON.Size = new System.Drawing.Size(132, 23);
+            this.REFRESH_BUTTON.TabIndex = 40;
+            this.REFRESH_BUTTON.Text = "Refresh waiting queue";
+            this.REFRESH_BUTTON.UseVisualStyleBackColor = true;
+            this.REFRESH_BUTTON.Click += new System.EventHandler(this.REFRESH_BUTTON_Click);
             // 
             // Form2
             // 
