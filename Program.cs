@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using LMS_IS_WF;
-using LMSIS.Database.DaoSqls;
-using LMSIS.Database.Models;
 
 namespace LMSIS
 {

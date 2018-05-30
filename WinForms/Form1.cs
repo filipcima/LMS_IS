@@ -9,7 +9,7 @@ namespace LMS_IS_WF
 {
     public partial class Form1 : Form
     {
-        private int idStudent, idTeacher;
+        private readonly int idStudent, idTeacher;
         public Form1()
         {
             this.idStudent = Program.studentID;
