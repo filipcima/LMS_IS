@@ -4,7 +4,7 @@
 LMS_IS is a school project which demonstrates functionality of .NET Windows Forms and database access at DAIS course.
 
 
-##Assignment requirements (czech):
+## Assignment requirements (czech):
 
 - IS musí obsahovat minimálně 7 tabulek (minimálně 4 nebudou číselníky) a 5 netriviálních funkcí. Minimálně 3 funkce budou napsány jako uložené procedury.
 - Mezi těmito 5 funkcemi mohou být pouze 2 netriviální dotazy, ostatní budou transakce. Netriviální funkce není CRUD operace.
