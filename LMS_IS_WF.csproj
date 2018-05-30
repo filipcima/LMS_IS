@@ -1,0 +1,149 @@
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{B41E768F-2BA2-4AF7-B6F4-E14D90FC8ADE}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <NoStandardLibraries>false</NoStandardLibraries>
+    <AssemblyName>WindowsApplication</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>LMS_IS_WF</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".git\config" />
+    <None Include=".git\description" />
+    <None Include=".git\FETCH_HEAD" />
+    <None Include=".git\HEAD" />
+    <None Include=".git\hooks\applypatch-msg.sample" />
+    <None Include=".git\hooks\commit-msg.sample" />
+    <None Include=".git\hooks\fsmonitor-watchman.sample" />
+    <None Include=".git\hooks\post-update.sample" />
+    <None Include=".git\hooks\pre-applypatch.sample" />
+    <None Include=".git\hooks\pre-commit.sample" />
+    <None Include=".git\hooks\pre-push.sample" />
+    <None Include=".git\hooks\pre-rebase.sample" />
+    <None Include=".git\hooks\pre-receive.sample" />
+    <None Include=".git\hooks\prepare-commit-msg.sample" />
+    <None Include=".git\hooks\update.sample" />
+    <None Include=".git\index" />
+    <None Include=".git\info\exclude" />
+    <None Include=".git\logs\HEAD" />
+    <None Include=".git\logs\refs\heads\master" />
+    <None Include=".git\logs\refs\remotes\origin\master" />
+    <None Include=".git\objects\pack\pack-a05b202392b6d45a24e09ccced245b61c117f1cd.idx" />
+    <None Include=".git\objects\pack\pack-a05b202392b6d45a24e09ccced245b61c117f1cd.pack" />
+    <None Include=".git\packed-refs" />
+    <None Include=".git\refs\heads\master" />
+    <None Include=".git\refs\remotes\origin\master" />
+    <None Include=".vs\LMSIS\DesignTimeBuild\.dtbcache" />
+    <None Include=".vs\LMSIS\v15\.suo" />
+    <None Include=".vs\LMSIS\v15\Server\sqlite3\db.lock" />
+    <None Include=".vs\LMSIS\v15\Server\sqlite3\storage.ide" />
+    <None Include=".vs\LMSIS\v15\Server\sqlite3\storage.ide-shm" />
+    <None Include=".vs\LMSIS\v15\Server\sqlite3\storage.ide-wal" />
+    <None Include=".vs\LMS_IS\v15\.suo" />
+    <None Include=".vs\LMS_IS\v15\Server\sqlite3\db.lock" />
+    <None Include=".vs\LMS_IS\v15\Server\sqlite3\storage.ide" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Database\DaoSqls\HistorieMaterialuTable.cs" />
+    <Compile Include="Database\DaoSqls\KurzFrontaTable.cs" />
+    <Compile Include="Database\DaoSqls\KurzTable.cs" />
+    <Compile Include="Database\DaoSqls\OborTable.cs" />
+    <Compile Include="Database\DaoSqls\PisemkaTable.cs" />
+    <Compile Include="Database\DaoSqls\StudentTable.cs" />
+    <Compile Include="Database\DaoSqls\TypStudiaTable.cs" />
+    <Compile Include="Database\DaoSqls\VyucujiciTable.cs" />
+    <Compile Include="Database\DaoSqls\VyukovyMaterialTable.cs" />
+    <Compile Include="Database\DaoSqls\ZapsanyKurzTable.cs" />
+    <Compile Include="Database\Database.cs" />
+    <Compile Include="Database\Models\HistorieMaterialu.cs" />
+    <Compile Include="Database\Models\Kurz.cs" />
+    <Compile Include="Database\Models\KurzFronta.cs" />
+    <Compile Include="Database\Models\Obor.cs" />
+    <Compile Include="Database\Models\Pisemka.cs" />
+    <Compile Include="Database\Models\Student.cs" />
+    <Compile Include="Database\Models\TypStudia.cs" />
+    <Compile Include="Database\Models\Vyucujici.cs" />
+    <Compile Include="Database\Models\VyukovyMaterial.cs" />
+    <Compile Include="Database\Models\ZapsanyKurz.cs" />
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form2.Designer.cs">
+      <DependentUpon>Form2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form3.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form3.Designer.cs">
+      <DependentUpon>Form3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".git\ms-persist.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include=".git\objects\info\" />
+    <Folder Include=".git\refs\tags\" />
+    <Folder Include=".vs\LMS_IS_WF\v15\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form2.resx">
+      <DependentUpon>Form2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form3.resx">
+      <DependentUpon>Form3.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
+  <ProjectExtensions>
+    <VisualStudio AllowExistingFolder="true" />
+  </ProjectExtensions>
+</Project>

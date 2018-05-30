@@ -143,7 +143,7 @@ namespace LMSIS.Database.DaoSqls
                 vm.IdVyukovyMaterial = reader.GetInt32(++i);
                 vm.Nazev = reader.GetString(++i);
                 vm.Text = reader.GetString(++i);
-                vm.Vlozen = DateTime.Parse(reader.GetString(++i));
+                vm.Vlozen = reader.GetDateTime(++i);
                 vm.IdVyucujici = reader.GetInt32(++i);
                 vm.IdKurz = reader.GetInt32(++i);
                 if (complete)

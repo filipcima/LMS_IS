@@ -24,22 +24,21 @@ namespace LMSIS.Database.DaoSqls
             "k.Kapacita FROM ZapsanyKurz z JOIN Kurz k on k.IdKurz = z.Kurz_IdKurz JOIN Student s ON s.IdStudent = " +
             "z.Student_IdStudent WHERE IdRegistrace=@IdRegistrace";
 
-        private static string SQL_RUNNING_COURSES = 
-            "SELECT z.IdRegistrace, z.DatumZapisu, z.DatumUkonceni, z.Splneno, z.Student_IdStudent, z.Kurz_IdKurz FROM " +
-            "ZapsanyKurz z WHERE getdate() > DatumZapisu AND (getdate() < DatumUkonceni OR DatumUkonceni IS NULL)";
+        private static string SQL_COURSES_BY_STUDENT =
+            "SELECT z.IdRegistrace, z.DatumZapisu, z.DatumUkonceni, z.Splneno, z.Student_IdStudent, z.Kurz_IdKurz, " +
+            "s.Jmeno, s.Prijmeni, s.Login, s.DatumRegistrace, k.Nazev, k.Popis, k.Vytvoren, k.Vyucujici_IdVyucujici, " +
+            "k.Kapacita FROM ZapsanyKurz z JOIN Kurz k on k.IdKurz = z.Kurz_IdKurz JOIN Student s ON s.IdStudent = " +
+            "z.Student_IdStudent WHERE Student_IdStudent=@IdStudent";
 
-        private static string SQL_STOPPED_COURSES = 
-            "SELECT z.IdRegistrace, z.DatumZapisu, z.DatumUkonceni, z.Splneno, z.Student_IdStudent, z.Kurz_IdKurz FROM " +
-            "ZapsanyKurz z WHERE getdate() > DatumZapisu AND (getdate() > DatumUkonceni OR DatumUkonceni IS NOT NULL)";
+        private static string SQL_COURSES_BY_TEACHER =
+            "SELECT z.IdRegistrace, z.DatumZapisu, z.DatumUkonceni, z.Splneno, z.Student_IdStudent, z.Kurz_IdKurz, " +
+            "s.Jmeno, s.Prijmeni, s.Login, s.DatumRegistrace, k.Nazev, k.Popis, k.Vytvoren, k.Vyucujici_IdVyucujici, " +
+            "k.Kapacita FROM ZapsanyKurz z JOIN Kurz k on k.IdKurz = z.Kurz_IdKurz JOIN Student s ON s.IdStudent = " +
+            "z.Student_IdStudent WHERE k.Vyucujici_IdVyucujici=@IdVyucujici";
 
-        private static string SQL_COURSES_BY_STUDENT = 
-            "SELECT z.IdRegistrace, z.DatumZapisu, z.DatumUkonceni, z.Splneno, z.Student_IdStudent, z.Kurz_IdKurz FROM " +
-            "ZapsanyKurz z WHERE Student_IdStudent=@IdStudent";
+        private static string SQL_AVG_MARK = "SELECT avg(p.znamka) FROM pisemka p JOIN zapsanykurz z ON " +
+                                            "p.zapsanykurz_idregistrace = z.idregistrace WHERE z.IdRegistrace = @IdRegistrace";
 
-        private static string SQL_COURSES_BY_TEACHER = 
-            "SELECT z.IdRegistrace, z.DatumZapisu, z.DatumUkonceni, z.Splneno, z.Student_IdStudent, z.Kurz_IdKurz FROM " +
-            "ZapsanyKurz z JOIN Kurz k ON k.IdKurz = z.kurz_IdKurz WHERE k.Vyucujici_IdVyucujici=@IdVyucujici";
-        
         public static int Insert(ZapsanyKurz zk, Database pDb = null)
         {
             Database db;
@@ -120,39 +119,7 @@ namespace LMSIS.Database.DaoSqls
             }
             return null;
         }
-        
-        public static Collection<ZapsanyKurz> SelectRunningCourses()
-        {
-            using (Database db = new Database())
-            {
-                db.Connect();
 
-                using (SqlCommand command = db.CreateCommand(SQL_RUNNING_COURSES))
-                {
-                    SqlDataReader reader = db.Select(command);
-                    Collection<ZapsanyKurz> kurzy = Read(reader, false);
-                    
-                    return kurzy;
-                }
-            }
-        }
-        
-        public static Collection<ZapsanyKurz> SelectStoppedCourses()
-        {
-            using (Database db = new Database())
-            {
-                db.Connect();
-
-                using (SqlCommand command = db.CreateCommand(SQL_STOPPED_COURSES))
-                {
-                    SqlDataReader reader = db.Select(command);
-                    Collection<ZapsanyKurz> kurzy = Read(reader, false);
-                    
-                    return kurzy;
-                }
-            }
-        }
-        
         public static Collection<ZapsanyKurz> SelectCoursesByIdStudent(int idStudent)
         {
             using (Database db = new Database())
@@ -163,13 +130,13 @@ namespace LMSIS.Database.DaoSqls
                 {
                     command.Parameters.AddWithValue("@IdStudent", idStudent);
                     SqlDataReader reader = db.Select(command);
-                    Collection<ZapsanyKurz> kurzy = Read(reader, false);
-                    
+                    Collection<ZapsanyKurz> kurzy = Read(reader, true);
+
                     return kurzy;
                 }
             }
         }
-        
+
         public static Collection<ZapsanyKurz> SelectCoursesByIdTeacher(int idTeacher)
         {
             using (Database db = new Database())
@@ -180,13 +147,40 @@ namespace LMSIS.Database.DaoSqls
                 {
                     command.Parameters.AddWithValue("@IdVyucujici", idTeacher);
                     SqlDataReader reader = db.Select(command);
-                    Collection<ZapsanyKurz> kurzy = Read(reader, false);
-                    
+                    Collection<ZapsanyKurz> kurzy = Read(reader, true);
+
                     return kurzy;
                 }
             }
         }
-        
+
+        public static double? GetAvgMark(int idRegistrace)
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_AVG_MARK))
+                {
+                    command.Parameters.AddWithValue("@IdRegistrace", idRegistrace);
+
+                    SqlDataReader reader = db.Select(command);
+                    while (reader.Read())
+                    {
+                        if(!reader.IsDBNull(0))
+                        {
+                            return reader.GetInt32(0);
+                        } else
+                        {
+                            return null;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private static void PrepareCommand(SqlCommand command, ZapsanyKurz zapsanyKurz)
         {
             command.Parameters.AddWithValue("@IdRegistrace", zapsanyKurz.IdRegistrace);
@@ -208,11 +202,11 @@ namespace LMSIS.Database.DaoSqls
                 ZapsanyKurz zapsanyKurz = new ZapsanyKurz();
                 int i = -1;
                 zapsanyKurz.IdRegistrace = reader.GetInt32(++i);
-                zapsanyKurz.DatumZapisu = DateTime.Parse(reader.GetString(++i));
+                zapsanyKurz.DatumZapisu = reader.GetDateTime(++i);
                 
                 if (!reader.IsDBNull(++i))
                 {
-                    zapsanyKurz.DatumUkonceni = DateTime.Parse(reader.GetString(i));
+                    zapsanyKurz.DatumUkonceni = reader.GetDateTime(i);
                 }
                 
                 if (!reader.IsDBNull(++i))
@@ -231,10 +225,10 @@ namespace LMSIS.Database.DaoSqls
                     zapsanyKurz.Student.Jmeno = reader.GetString(++i);
                     zapsanyKurz.Student.Prijmeni = reader.GetString(++i);
                     zapsanyKurz.Student.Login = reader.GetString(++i);
-                    zapsanyKurz.Student.DatumRegistrace = DateTime.Parse(reader.GetString(++i));
+                    zapsanyKurz.Student.DatumRegistrace = reader.GetDateTime(++i);
                     zapsanyKurz.Kurz.Nazev = reader.GetString(++i);
                     zapsanyKurz.Kurz.Popis = reader.GetString(++i);
-                    zapsanyKurz.Kurz.Vytvoren = DateTime.Parse(reader.GetString(++i));
+                    zapsanyKurz.Kurz.Vytvoren = reader.GetDateTime(++i);
                     zapsanyKurz.Kurz.IdVyucujici = reader.GetInt32(++i);
                     zapsanyKurz.Kurz.Kapacita = reader.GetByte(++i);
                 }

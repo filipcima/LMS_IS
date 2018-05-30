@@ -12,6 +12,7 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_DELETE_ID = "DELETE FROM Obor WHERE IdObor=@IdObor";
         private static string SQL_SELECT_ID = "SELECT IdObor, Nazev, Popis FROM Obor WHERE IdObor=@IdObor";
         private static string SQL_SELECT_ALL = "SELECT IdObor, Nazev, Popis FROM Obor";
+        private static string SQL_SELECT_BY_NAME = "SELECT IdObor FROM Obor WHERE Nazev=@Nazev";
         
         public static int Insert(Obor obor, Database pDb = null)
         {
@@ -84,7 +85,30 @@ namespace LMSIS.Database.DaoSqls
             }
             return null;
         }
-        
+
+        public static Obor SelectOneByName(string name)
+        {
+            using (Database db = new Database())
+            {
+                db.Connect();
+
+                using (SqlCommand command = db.CreateCommand(SQL_SELECT_BY_NAME))
+                {
+                    command.Parameters.AddWithValue("@Nazev", name);
+
+                    SqlDataReader reader = db.Select(command);
+
+                    Collection<Obor> obory = Read(reader, false);
+
+                    if (obory.Count == 1)
+                    {
+                        return obory[0];
+                    }
+                }
+            }
+            return null;
+        }
+
         public static Collection<Obor> SelectAll()
         {
             using (Database db = new Database())
@@ -118,9 +142,13 @@ namespace LMSIS.Database.DaoSqls
                 Obor obor = new Obor();
                 int i = -1;
                 obor.IdObor = reader.GetInt32(++i);
-                obor.Nazev = reader.GetString(++i);
-                obor.Popis = reader.GetString(++i);
                 
+                if (complete)
+                {
+                    obor.Nazev = reader.GetString(++i);
+                    obor.Popis = reader.GetString(++i);
+                }
+
                 obory.Add(obor);
             }
             

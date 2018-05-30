@@ -12,16 +12,18 @@ namespace LMSIS.Database.DaoSqls
         private static string SQL_INSERT = "INSERT INTO Student VALUES (@DatumRegistrace, @PosledniPrihlaseni, " +
                                           "@Jmeno, @Prijmeni, @Login, @Heslo, @TypStudia_IdTypStudia)";
 
-        private static string SQL_UPDATE = "UPDATE Student SET Jmeno=@Jmeno, Prijmeni=@Prijmeni, " +
-                                           "DatumRegistrace=@DatumRegistrace, PosledniPrihlaseni=@PosledniPrihlaseni," +
-                                          "Login=@Login, Heslo=@Heslo, TypStudia_IdTypStudia=@TypStudia_IdTypStudia WHERE " +
-                                          "IdStudent=@IdStudent";
+        private static string SQL_UPDATE = 
+            "UPDATE Student SET Jmeno=@Jmeno, Prijmeni=@Prijmeni, " +
+            "DatumRegistrace=@DatumRegistrace, PosledniPrihlaseni=@PosledniPrihlaseni," +
+            "Login=@Login, Heslo=@Heslo, TypStudia_IdTypStudia=@TypStudia_IdTypStudia WHERE " +
+            "IdStudent=@IdStudent";
 
         private static string SQL_DELETE_ID = "DELETE FROM Student WHERE IdStudent=@IdStudent";
 
-        private static string SQL_SELECT_ID = "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, " +
-                                             "s.\"Login\", s.Heslo, s.TypStudia_IdTypStudia, t.Nazev FROM Student s JOIN TypStudia t " +
-                                             "ON t.IdTypStudia = s.TypStudia_IdTypStudia WHERE IdStudent=@IdStudent";
+        private static string SQL_SELECT_ID = 
+            "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.DatumRegistrace, s.PosledniPrihlaseni, " +
+            "s.\"Login\", s.Heslo, s.TypStudia_IdTypStudia, t.Nazev FROM Student s JOIN TypStudia t " +
+            "ON t.IdTypStudia = s.TypStudia_IdTypStudia WHERE IdStudent=@IdStudent";
 
         private static string SQL_SELECT_UNSUCESSFUL = 
             "SELECT s.IdStudent, s.Jmeno, s.Prijmeni, s.TypStudia_IdTypStudia FROM Student s JOIN zapsanykurz z " +
@@ -168,10 +170,10 @@ namespace LMSIS.Database.DaoSqls
                 student.Prijmeni = reader.GetString(++i);
                 if (complete)
                 {
-                    student.DatumRegistrace = DateTime.Parse(reader.GetString(++i));
+                    student.DatumRegistrace = reader.GetDateTime(++i);
                     if (!reader.IsDBNull(++i))
                     {
-                        student.PosledniPrihlaseni = DateTime.Parse(reader.GetString(i));
+                        student.PosledniPrihlaseni = reader.GetDateTime(i);
                     }
 
                     student.Login = reader.GetString(++i);
